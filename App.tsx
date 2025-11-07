@@ -2,6 +2,11 @@ import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Cadastro from './screens/Cadastro';
 import Login from './screens/Login';
+import Teste from './screens/Teste';
+import I18n from 'i18n-js';
+
+I18n.locale = 'pt_BR';
+I18n.defaultLocale = 'pt_BR';
 
 import { GluestackUIProvider } from '@gluestack-ui/themed';
 import { config } from '@gluestack-ui/config';
@@ -41,7 +46,7 @@ export default function App() {
   return (
      <View style={styles.container} onLayout={onLayoutRootView}>
       <GluestackUIProvider config={config}>
-        <Cadastro />
+        <Teste />
       </GluestackUIProvider>
     </View>
   );

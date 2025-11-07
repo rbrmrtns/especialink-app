@@ -1,13 +1,13 @@
 import { View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
 import React from 'react'
-import { useNavigation } from '@react-navigation/native'
+// import { useNavigation } from '@react-navigation/native'
 import UserCardComponent from '../components/account/UserCardComponent'
 import { signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 
 export default function Profile() {
 
-  const navigation = useNavigation()
+  // const navigation = useNavigation()
 
   const user = auth.currentUser;
   const displayName = user?.displayName || 'Guest';
@@ -30,14 +30,14 @@ export default function Profile() {
 
           {/* INTRO: Welcome user + text */}
           <View className="-mt-3 mb-0 px-10 flex-row justify-between">
-            <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Account</Text>
+            <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Perfil</Text>
             
             <Pressable onPress={handleLogout}>
             <View className="flex-row mt-1.5">
               <Image className="w-4 h-4 mr-1"  style={{ tintColor: '#63254E' }}
                                   source={require('./../assets/icons/exit.png')} />
               <Text style={{ fontFamily: 'Montserrat_600SemiBold' }}
-              className="text-dark-pink">Sign out</Text>
+              className="text-dark-pink">Sair</Text>
             </View>
             </Pressable>
           </View>
@@ -143,10 +143,6 @@ export default function Profile() {
         <View className="flex justify-center items-center mt-10">
           <Image className="w-16 h-6 mb-1" 
                                 source={require('./../assets/images/logo-plain-nobg.png')} />
-
-          <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-          className="mb-2 underline text-dark-pink">Contact us</Text>
-          
   
         </View>
       
