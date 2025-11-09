@@ -1,16 +1,16 @@
 import { View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
 import React from 'react'
 // import { useNavigation } from '@react-navigation/native'
-import UserCardComponent from '../components/account/UserCardComponent'
+import UsuarioCard from '../components/UsuarioCard'
 import { signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 
-export default function Profile() {
+export default function Perfil() {
 
   // const navigation = useNavigation()
 
-  const user = auth.currentUser;
-  const displayName = user?.displayName || 'Guest';
+  // const user = auth.currentUser;
+  // const displayName = user?.displayName || 'Guest';
 
   //Function to log out
   const handleLogout = async ()=> {

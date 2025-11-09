@@ -44,7 +44,7 @@ export default function App() {
   }
 
   return (
-     <View style={styles.container} onLayout={onLayoutRootView}>
+     <View style={styles.container} onLayout={onLayoutRootView} className="font-montRegular">
       <GluestackUIProvider config={config}>
         <Teste />
       </GluestackUIProvider>
