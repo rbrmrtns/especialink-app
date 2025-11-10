@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-// Dados de exemplo (para facilitar)
 const profileData = {
   tipoUsuario: 'especialista',
   name: 'Rosana Ferreira',
@@ -23,14 +22,16 @@ const profileData = {
   whatsappNumber: '5553992000670',
 };
 
-const UsuarioCard = () => {
+const UsuarioCard = ({ isEmbedded = false }) => {
 
   const handleWhatsAppPress = () => {
     Linking.openURL(`whatsapp://send?phone=${profileData.whatsappNumber}&text=Olá, Rosana!`); // text dinamico
   };
 
+  const containerClass = isEmbedded ? "p-4" : "bg-white rounded-lg shadow-lg p-4 m-4";
+
   return (
-    <View className="bg-white rounded-lg shadow-lg p-4 m-4">
+    <View className={containerClass}>
       <View className="flex-row justify-between items-start">
         
         <View className="flex-row items-center">

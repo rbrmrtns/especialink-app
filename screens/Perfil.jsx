@@ -1,9 +1,10 @@
 import { View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
 import React from 'react'
+import Animated, { FlipInEasyX } from 'react-native-reanimated';
 // import { useNavigation } from '@react-navigation/native'
 import UsuarioCard from '../components/UsuarioCard'
-import { signOut } from 'firebase/auth'
-import { auth } from '../config/firebase'
+// import { signOut } from 'firebase/auth'
+// import { auth } from '../config/firebase'
 
 export default function Perfil() {
 
@@ -13,10 +14,10 @@ export default function Perfil() {
   // const displayName = user?.displayName || 'Guest';
 
   //Function to log out
-  const handleLogout = async ()=> {
-    await signOut(auth);
-    navigation.navigate('Welcome')
-  }
+  // const handleLogout = async ()=> {
+  //   await signOut(auth);
+  //   navigation.navigate('Welcome')
+  // }
 
   return (
     <ScrollView>
@@ -28,14 +29,15 @@ export default function Perfil() {
 
         <View className="mt-20 mb-24">
 
-          {/* INTRO: Welcome user + text */}
           <View className="-mt-3 mb-0 px-10 flex-row justify-between">
             <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Perfil</Text>
             
-            <Pressable onPress={handleLogout}>
+            <Pressable 
+            // onPress={handleLogout}
+            >
             <View className="flex-row mt-1.5">
               <Image className="w-4 h-4 mr-1"  style={{ tintColor: '#63254E' }}
-                                  source={require('./../assets/icons/exit.png')} />
+                                  source={require('../assets/icons/exit.png')} />
               <Text style={{ fontFamily: 'Montserrat_600SemiBold' }}
               className="text-dark-pink">Sair</Text>
             </View>
@@ -53,87 +55,103 @@ export default function Perfil() {
       <View className="bg-white outline outline-offset-6 h-full py-5 -mt-5 rounded-t-[35px] h-screen">
 
         <View className="-mt-28">  
-          <UserCardComponent />
-        </View>
+          <Animated.View entering={FlipInEasyX.delay(0).duration(500).springify()}>
+            <View className="m-8 bg-white rounded-xl shadow-xl mx-auto border border-gray-200">
+                {/* Card top */}
 
-        {/* Button */}
-        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between"
-        onPress={()=> navigation.navigate('UserPosts')}>
-            
-            <View className="flex-row">
-              <Image className="w-5 h-5 mr-4" 
-                                  source={require('./../assets/icons/post.png')} />
+                <ImageBackground
+                    source={require('../assets/images/home-bg2.png')}
+                    resizeMode="cover" imageStyle= {{opacity:0.2, borderTopLeftRadius: 12, borderTopRightRadius: 12}} 
+                  >
 
-              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-0.5">
-                My posts
-              </Text>
+                  <View className="flex-row rounded-t-xl px-5 justify-between">
+
+                        {/* Account info */}
+                        <View className="flex-row pt-8 pb-12">
+
+                            {/* Account name + title */}
+                            <View className="">
+                                <Text style={{ fontFamily: 'Montserrat_600SemiBold'}}
+                                className="text-base">Ficha de</Text>
+                                <Text style={{ fontFamily: 'Montserrat_500Medium_Italic'}}
+                                className="text-base -mt-1">Rosana</Text>
+                            </View>
+                        </View>
+
+                        {/* Logo */}
+                        <View className="pt-5">
+                            <Image className="w-16 h-6 ml-2" 
+                              source={require('../assets/logo.png')} />
+                        </View>
+
+                  
+                  </View>
+
+                </ImageBackground>
+
+                {/* Card Bottom */}
+                <UsuarioCard isEmbedded={true} />
+
             </View>
-
-            <Pressable className="bg-dark-pink py-1 w-24 rounded-full ml-12">
-                            <Text style={{ fontFamily: 'Montserrat_600SemiBold' }}
-                            className="text-white text-xs text-center">Boost!</Text>
-            </Pressable>
-
-            <Image className="w-5 h-5" 
-                                  source={require('./../assets/icons/next.png')} />
-
-        </Pressable>
+          </Animated.View>
+        </View>
 
         <View>
           {/* Button */}
-          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5">
+          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row items-center justify-between mt-5">
             
             <View className="flex-row">
-              <Image className="w-5 h-5 mr-4" 
-                                  source={require('./../assets/icons/edit.png')} />
+              <Image className="w-8 h-8 mr-4" 
+                                  source={require('../assets/icons/edit-personal-info.png')} />
 
               <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-0.5">
-                Edit Profile
+              className="mt-1">
+                Alterar Dados Pessoais
               </Text>
             </View>
 
-            <Image className="w-5 h-5" 
-                                  source={require('./../assets/icons/next.png')} />
+            <Image className="w-8 h-8" 
+                                  source={require('../assets/icons/next.png')} />
+
+          </Pressable>
+
+          {/* Button */}
+          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row  justify-between mt-5"
+          // onPress={()=> navigation.navigate('UserSkinType')}
+          >
+
+            <View className="flex-row">
+              <Image className="w-8 h-8 mr-4" 
+                                  source={require('../assets/icons/edit-professional-info.png')} />
+
+              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+              className="mt-1">
+                Alterar Dados Profissionais
+              </Text>
+            </View>
+
+            <Image className="w-8 h-8" 
+                                  source={require('../assets/icons/next.png')} />
 
           </Pressable>
 
           {/* Button */}
           <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          onPress={()=> navigation.navigate('UserSkinType')}>
-
-            <View className="flex-row">
-              <Image className="w-5 h-6 mr-4 -mt-1" 
-                                  source={require('./../assets/icons/face.png')} />
-
-              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-0.5">
-                Change Skin Type & Concerns
-              </Text>
-            </View>
-
-            <Image className="w-5 h-5" 
-                                  source={require('./../assets/icons/next.png')} />
-
-          </Pressable>
-
-          {/* Button */}
-          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          onPress={()=> navigation.navigate('CGLong')}>
+          // onPress={()=> navigation.navigate('CGLong')}
+          >
             
             <View className="flex-row">
-              <Image className="w-5 h-5 mr-4" 
-                                  source={require('./../assets/icons/united.png')} />
+              <Image className="w-8 h-8 mr-4" 
+                                  source={require('../assets/icons/retake-test.png')} />
 
               <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-0.5">
-                Community Guidelines
+              className="mt-1">
+                Refazer Teste de Compatibilidade
               </Text>
             </View>
 
-            <Image className="w-5 h-5" 
-                                  source={require('./../assets/icons/next.png')} />
+            <Image className="w-8 h-8" 
+                                  source={require('../assets/icons/next.png')} />
 
           </Pressable>
 
@@ -141,8 +159,8 @@ export default function Perfil() {
         </View>
 
         <View className="flex justify-center items-center mt-10">
-          <Image className="w-16 h-6 mb-1" 
-                                source={require('./../assets/images/logo-plain-nobg.png')} />
+          <Image className="w-24 h-10 mb-1" 
+                                source={require('../assets/logo.png')} />
   
         </View>
       

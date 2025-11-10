@@ -30,7 +30,7 @@ export default function Login() {
   return (
     <View className="flex-1">
     {/* INTRO */}
-    <ImageBackground source={require('./../assets/images/welcome-bg-up.png')} resizeMode="cover" className="w-full h-full">
+    <ImageBackground source={require('../assets/images/welcome-bg-up.png')} resizeMode="cover" className="w-full h-full">
 
    {/* <SafeAreaView className="flex"> */}
 
@@ -49,7 +49,7 @@ export default function Login() {
      {/* Logo */}
      <View className="flex items-center mb-10 pt-16">
        <Image className="w-48 h-20 ml-2" 
-                       source={require('./../assets/images/logo.png')} />
+                       source={require('../assets/logo.png')} />
      </View>
 
      <View className="form space-y-2 px-5">

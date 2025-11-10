@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -24,9 +24,17 @@
     "plugins": [
       "expo-font",
       [
-        "@rnmapbox/maps",
+        "@rnmapbox/maps/app.plugin.js",
         {
-          "RNMapboxMapsVersion": "11.13.4"
+          "RNMapboxMapsVersion": "10.16.0"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "1.8.0"
+          }
         }
       ]
     ],
