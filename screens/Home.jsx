@@ -95,18 +95,20 @@ export default function Home() {
   //   }, [])
   // );
 
+  const profileData = {
+    tipoUsuario: 'especialista',
+    nome: 'Rosana'
+  }
+  const tipoUsuario = 'paciente'
+
   const [isScrollEnabled, setScrollEnabled] = useState(true);
 
 return (
     <ScrollView scrollEnabled={isScrollEnabled}>
       <StatusBar/>
       <View className="flex-[1] white">
-
-        {/* === MAPA E HEADER === */}
-        {/* 4. Container para o mapa + UI. Dê a ele uma altura fixa. */}
         <View className="h-96"> 
           
-          {/* O Mapa (no fundo) */}
           <Mapbox.MapView
             style={{flex: 1}} // O mapa precisa de style={{flex: 1}} para preencher
             styleURL={Mapbox.StyleURL.Street} // Você pode mudar o estilo
@@ -119,44 +121,40 @@ return (
               animationMode={'flyTo'}
               animationDuration={0}
             />
-            {/* 5. Markers (baseado no seu array) */}
             {MARKERS.map(marker => (
               <Mapbox.PointAnnotation
                 key={marker.id}
                 id={marker.id}
                 coordinate={marker.coords}
               >
+
+                <Mapbox.Callout title={marker.title} />
                 {/* Você pode colocar um <Image/> customizado aqui */}
               </Mapbox.PointAnnotation>
             ))}
           </Mapbox.MapView>
 
-          {/* === SOBREPOSIÇÃO DE UI (Logo e Texto) === */}
-          {/* 6. View 'absolute' para colocar a UI por cima do mapa */}
           <View className="absolute top-0 left-0 right-0 p-4 pt-12"> 
-            {/* pt-12 para compensar a StatusBar */}
             
             <View className="flex-row justify-between items-start">
               
-              {/* Logo (Esquerda) */}
               <View>
                 <Image className="w-16 h-6" 
                        source={require('../assets/logo.png')} />
               </View>
 
-              {/* 7. Texto (Direita) - Alinhado à direita */}
               <View className="items-end bg-white/70 rounded-md p-2">
                 <Text 
                   className="text-xl text-gray-800" 
                   style={{ fontFamily: 'Montserrat_600SemiBold'}}
                 >
-                  Olá Rosana,
+                  Olá {profileData.nome},
                 </Text>
                 <Text 
                   className="text-sm text-gray-800" 
                   style={{ fontFamily: 'Montserrat_400Regular'}}
                 >
-                  Selecione pacientes{'\n'}para marcar consultas
+                  {profileData.tipoUsuario == 'especialista' ? 'Selecione pacientes\npara marcar consultas' : 'Encontre os melhores\nespecialistas para você'}
                 </Text>
               </View>
             

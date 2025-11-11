@@ -90,44 +90,12 @@ const UsuarioCard = ({ isEmbedded = false }) => {
         </>
         )}
         
-        <View>
-          <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
-            {profileData.tipoUsuario == 'especialista' ? 'Especialidades' : 'Condições de Saúde Mental'}
-          </Text>
-          <View className="flex-row flex-wrap gap-2 justify-center">
-            {profileData.specialties.slice(0, 3).map((spec) => (
-              <View key={spec} className="bg-white border border-gray-400 rounded-full px-3 py-1">
-                <Text className="text-xs font-montLight text-gray-700">{spec}</Text>
-              </View>
-            ))}
-            {profileData.tipoUsuario == 'especialista' && (
-            <>
-            <TouchableOpacity className="mt-2 ml-1">
-              <Text className="text-base font-montRegular color-pink">{profileData.tipoUsuario == 'especialista' ? 'Ver todas as especialidades' : 'Ver todas as condições de saúde mental'}</Text>
-            </TouchableOpacity>
-            </>
-            )}
-          </View>
-        </View>
       </View>
-
-      {profileData.tipoUsuario == 'especialista' && (
-        <>
-      <View className="mt-4 pt-4 border-t border-gray-200">
-        <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
-          Vida Profissional
-        </Text>
-        <Text className="text-sm font-montRegular text-gray-600" numberOfLines={2}>
-          {profileData.bio}
-        </Text>
-      </View>
-        </>
-        )}
 
       <View className="mt-4 pt-4 items-center">
         <TouchableOpacity>
           <Text className="text-base color-pink font-montSemibold">
-            Ver perfil completo
+            {profileData.tipoUsuario == 'especialista' ? 'Ver mais informações do especialista' : 'Ver mais informações do paciente'}
           </Text>
         </TouchableOpacity>
       </View>
