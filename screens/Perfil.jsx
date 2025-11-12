@@ -1,8 +1,9 @@
 import { View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
 import React from 'react'
 import Animated, { FlipInEasyX } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 // import { useNavigation } from '@react-navigation/native'
-import UsuarioCard from '../components/UsuarioCard'
+import {UsuarioCardCompleto} from '../components/UsuarioCardCompleto'
 // import { signOut } from 'firebase/auth'
 // import { auth } from '../config/firebase'
 
@@ -22,10 +23,10 @@ export default function Perfil() {
   return (
     <ScrollView>
       <StatusBar/>
-    <View className="flex-[1] white">
+    <View className="flex-[1] bg-white min-h-screen">
 
       {/* INTRO */}
-      <ImageBackground source={require('./../assets/images/bg7.png')} resizeMode="cover" imageStyle= {{opacity:0.3}}>
+      <ImageBackground source={require('../assets/images/bg7.png')} resizeMode="cover" imageStyle= {{opacity:0.3}}>
 
         <View className="mt-20 mb-24">
 
@@ -39,134 +40,134 @@ export default function Perfil() {
               <Image className="w-4 h-4 mr-1"  style={{ tintColor: '#63254E' }}
                                   source={require('../assets/icons/exit.png')} />
               <Text style={{ fontFamily: 'Montserrat_600SemiBold' }}
-              className="text-dark-pink">Sair</Text>
+              className="text-dark-orange">Sair</Text>
             </View>
             </Pressable>
-          </View>
-
-          <View>
-            <Text></Text>
           </View>
    
         </View>
 
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']} 
+          className="absolute bottom-0 left-0 right-0 h-24"
+        />
+
       </ImageBackground>
 
-      <View className="bg-white outline outline-offset-6 h-full py-5 -mt-5 rounded-t-[35px] h-screen">
+      <View className="-mt-20 z-10 mx-6">
+        <Animated.View entering={FlipInEasyX.delay(0).duration(500).springify()}>
+          <View className="bg-white rounded-xl shadow-xl border border-gray-200">
+              {/* Card top */}
 
-        <View className="-mt-28">  
-          <Animated.View entering={FlipInEasyX.delay(0).duration(500).springify()}>
-            <View className="m-8 bg-white rounded-xl shadow-xl mx-auto border border-gray-200">
-                {/* Card top */}
+              <ImageBackground
+                  source={require('../assets/images/home-bg2.png')}
+                  resizeMode="cover" imageStyle= {{opacity:0.2, borderTopLeftRadius: 12, borderTopRightRadius: 12}} 
+                >
 
-                <ImageBackground
-                    source={require('../assets/images/home-bg2.png')}
-                    resizeMode="cover" imageStyle= {{opacity:0.2, borderTopLeftRadius: 12, borderTopRightRadius: 12}} 
-                  >
+                <View className="rounded-t-xl px-5">
 
-                  <View className="flex-row rounded-t-xl px-5 justify-between">
+                      <View className="pt-4 items-end">
+                        <Image className="w-16 h-6 ml-2" 
+                          source={require('../assets/logo.png')} />
+                      </View>
 
-                        {/* Account info */}
-                        <View className="flex-row pt-8 pb-12">
+                      {/* Account info */}
+                      <View className="flex-row pt-2 pb-4">
 
-                            {/* Account name + title */}
-                            <View className="">
-                                <Text style={{ fontFamily: 'Montserrat_600SemiBold'}}
-                                className="text-base">Ficha de</Text>
-                                <Text style={{ fontFamily: 'Montserrat_500Medium_Italic'}}
-                                className="text-base -mt-1">Rosana</Text>
-                            </View>
-                        </View>
+                          {/* Account name + title */}
+                          <View className="">
+                              <Text style={{ fontFamily: 'Montserrat_600SemiBold'}}
+                              className="text-lg">Ficha de</Text>
+                              <Text style={{ fontFamily: 'Montserrat_500Medium_Italic'}}
+                              className="text-lg -mt-1">Rosana</Text>
+                          </View>
+                      </View>
 
-                        {/* Logo */}
-                        <View className="pt-5">
-                            <Image className="w-16 h-6 ml-2" 
-                              source={require('../assets/logo.png')} />
-                        </View>
+                
+                </View>
 
-                  
-                  </View>
+              </ImageBackground>
 
-                </ImageBackground>
+              {/* Card Bottom */}
+              <UsuarioCardCompleto variant="embedded" />
 
-                {/* Card Bottom */}
-                <UsuarioCard isEmbedded={true} />
-
-            </View>
-          </Animated.View>
-        </View>
-
-        <View>
-          {/* Button */}
-          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row items-center justify-between mt-5">
-            
-            <View className="flex-row">
-              <Image className="w-8 h-8 mr-4" 
-                                  source={require('../assets/icons/edit-personal-info.png')} />
-
-              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-1">
-                Alterar Dados Pessoais
-              </Text>
-            </View>
-
-            <Image className="w-8 h-8" 
-                                  source={require('../assets/icons/next.png')} />
-
-          </Pressable>
-
-          {/* Button */}
-          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row  justify-between mt-5"
-          // onPress={()=> navigation.navigate('UserSkinType')}
-          >
-
-            <View className="flex-row">
-              <Image className="w-8 h-8 mr-4" 
-                                  source={require('../assets/icons/edit-professional-info.png')} />
-
-              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-1">
-                Alterar Dados Profissionais
-              </Text>
-            </View>
-
-            <Image className="w-8 h-8" 
-                                  source={require('../assets/icons/next.png')} />
-
-          </Pressable>
-
-          {/* Button */}
-          <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          // onPress={()=> navigation.navigate('CGLong')}
-          >
-            
-            <View className="flex-row">
-              <Image className="w-8 h-8 mr-4" 
-                                  source={require('../assets/icons/retake-test.png')} />
-
-              <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-              className="mt-1">
-                Refazer Teste de Compatibilidade
-              </Text>
-            </View>
-
-            <Image className="w-8 h-8" 
-                                  source={require('../assets/icons/next.png')} />
-
-          </Pressable>
-
-          
-        </View>
-
-        <View className="flex justify-center items-center mt-10">
-          <Image className="w-24 h-10 mb-1" 
-                                source={require('../assets/logo.png')} />
-  
-        </View>
-      
+          </View>
+        </Animated.View>
       </View>
 
+
+      <View>
+        {/* Button */}
+        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5">
+          
+          <View className="flex-row">
+            <Image className="w-8 h-8 mr-4" 
+                                source={require('../assets/icons/edit-personal-info.png')} />
+
+            <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+            className="mt-1">
+              Alterar Dados Pessoais
+            </Text>
+          </View>
+
+          <Image className="w-8 h-8" 
+                                source={require('../assets/icons/next.png')} />
+
+        </Pressable>
+
+        {/* Button */}
+        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
+        // onPress={()=> navigation.navigate('UserSkinType')}
+        >
+
+          <View className="flex-row">
+            <Image className="w-8 h-8 mr-4" 
+                                source={require('../assets/icons/edit-professional-info.png')} />
+
+            <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+            className="mt-1">
+              Alterar Dados Profissionais
+            </Text>
+          </View>
+
+          <Image className="w-8 h-8" 
+                                source={require('../assets/icons/next.png')} />
+
+        </Pressable>
+
+        {/* Button */}
+        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
+        // onPress={()=> navigation.navigate('CGLong')}
+        >
+          
+          <View className="flex-row">
+            <Image className="w-8 h-8 mr-4" 
+                                source={require('../assets/icons/retake-test.png')} />
+
+            <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+            className="mt-1">
+              Refazer Teste de Compatibilidade
+            </Text>
+          </View>
+
+          <Image className="w-8 h-8" 
+                                source={require('../assets/icons/next.png')} />
+
+        </Pressable>
+
+        
+      </View>
+
+      <View className="h-12" />
+
+      <View className="flex justify-center items-center mt-10">
+        <Image className="w-24 h-10 mb-5" 
+                              source={require('../assets/logo.png')} />
+
+      </View>
+    
     </View>
+
   </ScrollView>
   )
 }

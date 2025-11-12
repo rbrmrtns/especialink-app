@@ -102,7 +102,6 @@ export default function Cadastro() {
     { label: 'Psicólogo(a)', value: 'psicologa' },
     { label: 'Psiquiatra', value: 'psiquiatra' },
     { label: 'Psicopedagogo(a)', value: 'psicopedagoga' },
-    { label: 'Neuropsicopedagogo(a)', value: 'neuropsicopedagoga' },
     { label: 'Fonoaudióloga', value: 'fonoaudiologa' },
     { label: 'Terapeuta Ocupacional', value: 'terapeuta_ocupacional' }
   ];
@@ -435,8 +434,7 @@ const handleSignup = async () => {
           ...camposObrigatorios,
           especialidade, conselho, conselhoNmro, precoConsulta, duracaoConsulta,
           expedienteInicio, expedienteFim,
-          experienciasSelecionadas,
-          conveniosSelecionados
+          experienciasSelecionadas
       };
   }
 

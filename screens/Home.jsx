@@ -1,6 +1,7 @@
 import { View, Text, SafeAreaView, TouchableOpacity, Image, ImageBackground, ScrollView, RefreshControl, StatusBar } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import UsuarioCard from '../components/UsuarioCard';
+import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto';
 import Mapbox from '@rnmapbox/maps';
 // import { useNavigation } from '@react-navigation/native';
 // import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -99,9 +100,13 @@ export default function Home() {
     tipoUsuario: 'especialista',
     nome: 'Rosana'
   }
-  const tipoUsuario = 'paciente'
 
   const [isScrollEnabled, setScrollEnabled] = useState(true);
+
+  const [modalVisivel, setModalVisivel] = useState(false);
+
+  const abrirModal = () => setModalVisivel(true);
+  const fecharModal = () => setModalVisivel(false);
 
 return (
     <ScrollView scrollEnabled={isScrollEnabled}>
@@ -148,13 +153,7 @@ return (
                   className="text-xl text-gray-800" 
                   style={{ fontFamily: 'Montserrat_600SemiBold'}}
                 >
-                  Olá {profileData.nome},
-                </Text>
-                <Text 
-                  className="text-sm text-gray-800" 
-                  style={{ fontFamily: 'Montserrat_400Regular'}}
-                >
-                  {profileData.tipoUsuario == 'especialista' ? 'Selecione pacientes\npara marcar consultas' : 'Encontre os melhores\nespecialistas para você'}
+                  Olá {profileData.nome}
                 </Text>
               </View>
             
@@ -167,15 +166,31 @@ return (
         {/* 8. Esta View 'sobe' por cima do mapa por causa do '-mt-5' */}
         <View className="bg-white rounded-t-[35px] py-5 -mt-5">
 
+          <Text 
+            className="text-lg text-gray-800 text-center mx-5 mb-4" 
+            style={{ fontFamily: 'Montserrat_400Regular'}}
+          >
+            {profileData.tipoUsuario == 'especialista' ? 'Agenda uma consulta com um possível paciente pressionando "Agendar"' : 'Entre em contato com o melhor especialista para você pressionando "Contato"'}
+          </Text>
+
           {/* Users map (Seu UsuarioCard) */}
           <View className="mb-28">
-            <UsuarioCard />
-            <UsuarioCard />
+            <UsuarioCard 
+              onVerMaisPress={abrirModal}
+            />
+            <UsuarioCard 
+              onVerMaisPress={abrirModal}
+            />
           </View>
           
         </View>
 
       </View>
+
+      <UsuarioCardCompleto 
+        modalVisible={modalVisivel}
+        onCloseModal={fecharModal}
+      />
     </ScrollView>
   );
 }

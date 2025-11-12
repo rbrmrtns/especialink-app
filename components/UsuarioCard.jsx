@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const profileData = {
-  tipoUsuario: 'especialista',
+  tipoUsuario: 'paciente',
   name: 'Rosana Ferreira',
   role: 'Psicóloga',
   crp: 'CRP 06/139956',
@@ -22,16 +22,14 @@ const profileData = {
   whatsappNumber: '5553992000670',
 };
 
-const UsuarioCard = ({ isEmbedded = false }) => {
+const UsuarioCard = ({ onVerMaisPress }) => {
 
   const handleWhatsAppPress = () => {
     Linking.openURL(`whatsapp://send?phone=${profileData.whatsappNumber}&text=Olá, Rosana!`); // text dinamico
   };
 
-  const containerClass = isEmbedded ? "p-4" : "bg-white rounded-lg shadow-lg p-4 m-4";
-
   return (
-    <View className={containerClass}>
+    <View className="bg-white rounded-lg shadow-lg p-4 m-4">
       <View className="flex-row justify-between items-start">
         
         <View className="flex-row items-center">
@@ -51,15 +49,29 @@ const UsuarioCard = ({ isEmbedded = false }) => {
           </View>
         </View>
 
-        <TouchableOpacity 
-          className="flex-row items-center"
-          onPress={handleWhatsAppPress}
-        >
-          <Icon name="whatsapp" size={16} color="#25D366" />
-          <Text className="text-lg text-green-600 font-montRegular ml-2 uppercase">
-            Contato
-          </Text>
-        </TouchableOpacity>
+        {(() => {
+          if (profileData.tipoUsuario == 'especialista') {
+            return <TouchableOpacity 
+                    className="flex-row items-center"
+                    onPress={handleWhatsAppPress}
+                    >
+                      <Icon name="whatsapp" size={16} color="#25D366" />
+                      <Text className="text-lg text-green-600 font-montRegular ml-2 uppercase">
+                        Contato
+                      </Text>
+                    </TouchableOpacity>;
+          } else if (profileData.tipoUsuario == 'paciente') {
+            return <TouchableOpacity 
+                      className="flex-row items-center mt-3.5"
+                      onPress={handleWhatsAppPress}
+                    >
+                      <Icon name="calendar" size={16} color="#0040FF" />
+                      <Text className="text-lg color-blue font-montRegular ml-2 uppercase">
+                        Agendar
+                      </Text>
+                    </TouchableOpacity>;
+          }
+        })()}
       </View>
 
       <View className="mt-4">
@@ -69,7 +81,7 @@ const UsuarioCard = ({ isEmbedded = false }) => {
         <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
             Consulta
           </Text>
-        <View className="flex-row justify-between items-start pb-4 mb-4 border-b border-gray-200">
+        <View className="flex-row justify-between items-start pb-4 mb-4">
           
           <View>
             <Text className="text-sm font-montRegular color-pink uppercase">Duração</Text>
@@ -92,8 +104,8 @@ const UsuarioCard = ({ isEmbedded = false }) => {
         
       </View>
 
-      <View className="mt-4 pt-4 items-center">
-        <TouchableOpacity>
+      <View className="items-center">
+        <TouchableOpacity onPress={onVerMaisPress}>
           <Text className="text-base color-pink font-montSemibold">
             {profileData.tipoUsuario == 'especialista' ? 'Ver mais informações do especialista' : 'Ver mais informações do paciente'}
           </Text>

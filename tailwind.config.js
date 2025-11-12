@@ -12,7 +12,7 @@ module.exports = {
 
         // Blue
           "light-blue" : "#F7FDFF",
-          "blue" : "#4F9EC5",
+          "blue" : "#0040FF",
 
         //   Pink
           "pink" : "#FB6F93",

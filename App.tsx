@@ -5,6 +5,7 @@ import Login from './screens/Login';
 import Teste from './screens/Teste';
 import Perfil from './screens/Perfil';
 import Home from './screens/Home';
+import Busca from './screens/Busca';
 import I18n from 'i18n-js';
 import Mapbox from '@rnmapbox/maps';
 
@@ -55,7 +56,7 @@ export default function App() {
   return (
      <View style={styles.container} onLayout={onLayoutRootView} className="font-montRegular">
       <GluestackUIProvider config={config}>
-        <Home />
+        <Busca />
       </GluestackUIProvider>
     </View>
   );
