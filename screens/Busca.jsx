@@ -119,10 +119,10 @@ export default function Busca() {
       {/* INTRO */}
       <ImageBackground source={require('../assets/images/bg4.png')} resizeMode="cover" imageStyle= {{opacity:0.7}}>
 
-        <View className="mt-20 mb-24">
+        <View className="mt-20 mb-10">
 
-          <View className="-mt-3 mb-0 px-10 flex-row justify-between">
-            <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Busca</Text>
+          <View className="-mt-3 mb-0">
+            <Text className="mb-1 text-center" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Busca</Text>
           </View>
    
         </View>
@@ -134,81 +134,87 @@ export default function Busca() {
 
       </ImageBackground>
 
-      <View className="flex-row mx-auto mt-3 mb-3">
-        <TouchableOpacity className={`border ${areaDeAtuacao === 'psicologa' ? 'border-dark-pink bg-dark-pink' : 'border-gray-200 bg-white'} rounded-full px-6 py-1 ml-1`} onPress={() => setAreaDeAtuacao('psicologa')}>
-        <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 15 }} className={`text-${areaDeAtuacao === 'psicologa' ? 'white' : 'gray-400'} text-center`}>Psicologia</Text>
-        </TouchableOpacity>
+      <View className="mt-3 mb-3 px-7">
+        
+        <View className="flex-row justify-center">
+          
+          <TouchableOpacity className={`border ${areaDeAtuacao === 'psicologa' ? 'border-dark-orange bg-dark-orange' : 'border-gray-200 bg-white'} rounded-full px-3 py-1 ml-1`} onPress={() => setAreaDeAtuacao('psicologa')}>
+            <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 14 }} className={`text-${areaDeAtuacao === 'psicologa' ? 'white' : 'gray-400'} text-center`}>Psicologia</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity className={`border ${areaDeAtuacao === 'psiquiatra' ? 'border-dark-pink bg-dark-pink' : 'border-gray-200 bg-white'} rounded-full px-6 py-1 ml-3`} onPress={() => setAreaDeAtuacao('psiquiatra')}>
-        <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 15 }} className={`text-${areaDeAtuacao === 'psiquiatra' ? 'white' : 'gray-400'} text-center`}>Psiquiatria</Text>
-        </TouchableOpacity>
+          <TouchableOpacity className={`border ${areaDeAtuacao === 'psiquiatra' ? 'border-dark-orange bg-dark-orange' : 'border-gray-200 bg-white'} rounded-full px-3 py-1 ml-2`} onPress={() => setAreaDeAtuacao('psiquiatra')}>
+            <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 14 }} className={`text-${areaDeAtuacao === 'psiquiatra' ? 'white' : 'gray-400'} text-center`}>Psiquiatria</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity className={`border ${areaDeAtuacao === 'psicopedagoga' ? 'border-dark-pink bg-dark-pink' : 'border-gray-200 bg-white'} rounded-full px-6 py-1 ml-3`} onPress={() => setAreaDeAtuacao('psicopedagoga')}>
-        <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 15 }} className={`text-${areaDeAtuacao === 'psicopedagoga' ? 'white' : 'gray-400'} text-center`}>Psicopedagogia</Text>
-        </TouchableOpacity>
+          <TouchableOpacity className={`border ${areaDeAtuacao === 'psicopedagoga' ? 'border-dark-orange bg-dark-orange' : 'border-gray-200 bg-white'} rounded-full px-3 py-1 ml-2`} onPress={() => setAreaDeAtuacao('psicopedagoga')}>
+            <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 14 }} className={`text-${areaDeAtuacao === 'psicopedagoga' ? 'white' : 'gray-400'} text-center`}>Psicopedagogia</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View className="flex-row justify-center mt-2">
+          <TouchableOpacity className={`border ${areaDeAtuacao === 'fonoaudiologa' ? 'border-dark-orange bg-dark-orange' : 'border-gray-200 bg-white'} rounded-full px-3 py-1 ml-2`} onPress={() => setAreaDeAtuacao('fonoaudiologa')}>
+            <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 14 }} className={`text-${areaDeAtuacao === 'fonoaudiologa' ? 'white' : 'gray-400'} text-center`}>Fonoaudiologia</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity className={`border ${areaDeAtuacao === 'fonoaudiologa' ? 'border-dark-pink bg-dark-pink' : 'border-gray-200 bg-white'} rounded-full px-6 py-1 ml-3`} onPress={() => setAreaDeAtuacao('fonoaudiologa')}>
-        <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 15 }} className={`text-${areaDeAtuacao === 'fonoaudiologa' ? 'white' : 'gray-400'} text-center`}>Fonoaudiologia</Text>
-        </TouchableOpacity>
+          <TouchableOpacity className={`border ${areaDeAtuacao === 'terapeuta_ocupacional' ? 'border-dark-orange bg-dark-orange' : 'border-gray-200 bg-white'} rounded-full px-3 py-1 ml-2`} onPress={() => setAreaDeAtuacao('terapeuta_ocupacional')}>
+            <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 14 }} className={`text-${areaDeAtuacao === 'terapeuta_ocupacional' ? 'white' : 'gray-400'} text-center`}>Terapia Ocupacional</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity className={`border ${areaDeAtuacao === 'terapeuta_ocupacional' ? 'border-dark-pink bg-dark-pink' : 'border-gray-200 bg-white'} rounded-full px-6 py-1 ml-3`} onPress={() => setAreaDeAtuacao('terapeuta_ocupacional')}>
-        <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 15 }} className={`text-${areaDeAtuacao === 'terapeuta_ocupacional' ? 'white' : 'gray-400'} text-center`}>Terapia Ocupacional</Text>
-        </TouchableOpacity>
       </View>
 
       <AreaDeAtuacaoCard 
         areaDeAtuacao={areaDeAtuacao}
       />
 
-      <View className="shadow-sm bg-white rounded-xl w-[375px] mb-3 flex-row mx-auto py-1">
-          <MagnifyingGlassIcon size={20} color="grey" />
-          <TextInput
-              placeholder="Pesquise pelo nome do especialista"
-              value={nome}
-              onChangeText={text => setNome(text)}
-              className="w-full"
-              placeholderTextColor="gray"
-          />
+      <View className="shadow-sm bg-white rounded-xl w-[80%] mb-3 flex-row mx-auto py-1 px-4 items-center">
+        <MagnifyingGlassIcon size={20} color="grey" />
+        <TextInput placeholder="Pesquise pelo nome do especialista" 
+                   value={nome} 
+                   onChangeText={text => setNome(text)} 
+                   className="ml-2 flex-1" 
+                   placeholderTextColor="gray" 
+                   textAlignVertical="center" />
       </View>
 
-      <View className="flex-row mx-auto mt-2">
+      <View className="mb-3 items-center">
+        <Dropdown
+          className="w-[80%] border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
+          onValueChange={setCidade}
+          items={listaCidades}
+          placeholder={placeholderCidade}
+          value={cidade}
+        />
+      </View>
 
-          <Dropdown
-            className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-            onValueChange={setCidade}
-            items={listaCidades}
-            placeholder={placeholderCidade}
-            value={cidade}
-            style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-          />
+      <View className="mb-3 items-center">
+        <Dropdown
+          className="w-[80%] border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
+          onValueChange={setPreco}
+          items={listaFaixasDePreco}
+          placeholder={placeholderFaixaDePreco}
+          value={preco}
+        />
+      </View>
 
-          <Dropdown
-            className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-            onValueChange={setPreco}
-            items={listaFaixasDePreco}
-            placeholder={placeholderFaixaDePreco}
-            value={preco}
-            style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-          />
+      <View className="mb-3 items-center">
+        <Dropdown
+          className="w-[80%] border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
+          onValueChange={setCondicao}
+          items={listaCondicoes}
+          placeholder={placeholderCondicao}
+          value={condicao}
+        />
+      </View>
 
-          <Dropdown
-            className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-            onValueChange={setCondicao}
-            items={listaCondicoes}
-            placeholder={placeholderCondicao}
-            value={condicao}
-            style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-          />
-
-          <Dropdown
-            className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-            onValueChange={setConvenio}
-            items={listaDeConvenios}
-            placeholder={placeholderConvenio}
-            value={convenio}
-            style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-          />
-
+      <View className="mb-3 items-center">
+        <Dropdown
+          className="w-[80%] border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
+          onValueChange={setConvenio}
+          items={listaDeConvenios}
+          placeholder={placeholderConvenio}
+          value={convenio}
+        />
       </View>
 
       <View className="mb-28">

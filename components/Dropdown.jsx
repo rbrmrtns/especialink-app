@@ -1,33 +1,37 @@
 import RNPickerSelect from 'react-native-picker-select';
+import { StyleSheet, View } from 'react-native';
 
-export const Dropdown = ({ onValueChange, items, placeholder, value, customStyles = {} }) => {
-  
-  const pickerSelectStyles = {
-    input: {
-      fontSize: 16,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-      borderWidth: 1,
-      borderColor: 'gray',
-      borderRadius: 8,
-      color: 'black',
-      paddingRight: 30,
-      ...customStyles, // E aqui também, para consistência entre plataformas
-    },
-    placeholder: {
-      color: '#9EA0A4', // Cor padrão do placeholder
-      ...customStyles.placeholder, // Permite customizar o placeholder também
-    },
+
+const defaultPickerStyles = StyleSheet.create({
+  inputAndroid: {
+    color: 'black',
+    elevation: 1, // Sombra para Android
+  },
+  placeholder: {
+    color: 'gray',
+    fontFamily: 'Montserrat_400Regular',
+    fontSize: 14,
+  }
+});
+
+export const Dropdown = ({ onValueChange, items, placeholder, value, className = "" }) => {
+
+  const handleValueChange = (selectedValue) => {
+    if (selectedValue !== null && selectedValue !== undefined) {
+      onValueChange(selectedValue);
+    }
   };
 
   return (
-    <RNPickerSelect
-      onValueChange={onValueChange}
-      items={items}
-      value={value}
-      placeholder={placeholder}
-      style={pickerSelectStyles}
-    />
+    <View className={className}>
+      <RNPickerSelect
+        onValueChange={handleValueChange}
+        items={items}
+        value={value}
+        placeholder={placeholder}
+        style={defaultPickerStyles}
+      />
+    </View>
   );
 };
 

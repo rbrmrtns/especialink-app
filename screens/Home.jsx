@@ -97,7 +97,7 @@ export default function Home() {
   // );
 
   const profileData = {
-    tipoUsuario: 'especialista',
+    tipoUsuario: 'paciente',
     nome: 'Rosana'
   }
 

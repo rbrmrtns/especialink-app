@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const profileData = {
-  tipoUsuario: 'paciente',
+  tipoUsuario: 'especialista',
   name: 'Rosana Ferreira',
   role: 'Psicóloga',
   crp: 'CRP 06/139956',
