@@ -30,11 +30,11 @@ const Conteudo = () => (
       className="w-20 h-20 rounded-full"
     />
     <View className="ml-4"> 
-      <Text className="text-xl font-montExtrabold color-dark-pink">{profileData.name}</Text>
+      <Text className="text-xl font-montExtrabold color-dark-orange">{profileData.name}</Text>
       {profileData.tipoUsuario == 'especialista' && (
       <>
       <Text className="text-base font-montMedium text-gray-700">{profileData.role}</Text>
-      <Text className="text-base font-montExtrabold color-dark-pink">{profileData.crp}</Text>
+      <Text className="text-base font-montExtrabold color-dark-orange">{profileData.crp}</Text>
       </>
       )}
       <Text className="text-sm font-montRegular text-gray-700">{profileData.location}</Text>
@@ -45,23 +45,23 @@ const Conteudo = () => (
 
   {profileData.tipoUsuario == 'especialista' && (
     <>
-  <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
+  <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
       Consulta
     </Text>
   <View className="flex-row justify-between items-start pb-4 mb-4 border-b border-gray-200">
     
     <View>
-      <Text className="text-sm font-montRegular color-pink uppercase">Duração</Text>
+      <Text className="text-sm font-montRegular color-orange uppercase">Duração</Text>
       <Text className="text-sm font-montMedium text-gray-800">{profileData.duration}</Text>
     </View>
     
     <View className="items-center">
-      <Text className="text-sm font-montRegular color-pink uppercase">Preço</Text>
+      <Text className="text-sm font-montRegular color-orange uppercase">Preço</Text>
       <Text className="text-2xl font-montExtrabold font-bold text-gray-800">{profileData.price}</Text>
     </View>
 
     <View className="items-end">
-      <Text className="text-sm font-montRegular color-pink uppercase">Atendimento</Text>
+      <Text className="text-sm font-montRegular color-orange uppercase">Atendimento</Text>
       <Text className="text-sm font-montMedium text-gray-800">{profileData.daysOfWork}</Text>
       <Text className="text-sm font-montMedium text-gray-800">{profileData.workHours}</Text>
     </View>
@@ -70,7 +70,7 @@ const Conteudo = () => (
   )}
 
   <View>
-    <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
+    <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
       {profileData.tipoUsuario == 'especialista' ? 'Especialidades' : 'Condições de Saúde Mental'}
     </Text>
     <View className="flex-row flex-wrap gap-2 justify-center">
@@ -86,7 +86,7 @@ const Conteudo = () => (
   {profileData.tipoUsuario == 'especialista' && (
   <>
   <View className="mt-4 pt-4 border-t border-gray-200">
-    <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
+    <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
       Vida Profissional
     </Text>
     <Text className="text-sm font-montRegular text-gray-600">

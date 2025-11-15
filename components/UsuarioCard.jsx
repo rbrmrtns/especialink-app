@@ -38,11 +38,11 @@ const UsuarioCard = ({ onVerMaisPress }) => {
             className="w-20 h-20 rounded-full"
           />
           <View className="ml-4"> 
-            <Text className="text-xl font-montExtrabold color-dark-pink">{profileData.name}</Text>
+            <Text className="text-xl font-montExtrabold color-dark-orange">{profileData.name}</Text>
             {profileData.tipoUsuario == 'especialista' && (
             <>
             <Text className="text-base font-montMedium text-gray-700">{profileData.role}</Text>
-            <Text className="text-base font-montExtrabold color-dark-pink">{profileData.crp}</Text>
+            <Text className="text-base font-montExtrabold color-dark-orange">{profileData.crp}</Text>
             </>
             )}
             <Text className="text-sm font-montRegular text-gray-700">{profileData.location}</Text>
@@ -78,23 +78,23 @@ const UsuarioCard = ({ onVerMaisPress }) => {
         
         {profileData.tipoUsuario == 'especialista' && (
           <>
-        <Text className="text-lg font-montExtrabold color-dark-pink mb-2">
+        <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
             Consulta
           </Text>
         <View className="flex-row justify-between items-start pb-4 mb-4">
           
           <View>
-            <Text className="text-sm font-montRegular color-pink uppercase">Duração</Text>
+            <Text className="text-sm font-montRegular color-orange uppercase">Duração</Text>
             <Text className="text-sm font-montMedium text-gray-800">{profileData.duration}</Text>
           </View>
           
           <View className="items-center">
-            <Text className="text-sm font-montRegular color-pink uppercase">Preço</Text>
+            <Text className="text-sm font-montRegular color-orange uppercase">Preço</Text>
             <Text className="text-2xl font-montExtrabold font-bold text-gray-800">{profileData.price}</Text>
           </View>
 
           <View className="items-end">
-            <Text className="text-sm font-montRegular color-pink uppercase">Atendimento</Text>
+            <Text className="text-sm font-montRegular color-orange uppercase">Atendimento</Text>
             <Text className="text-sm font-montMedium text-gray-800">{profileData.daysOfWork}</Text>
             <Text className="text-sm font-montMedium text-gray-800">{profileData.workHours}</Text>
           </View>
@@ -106,7 +106,7 @@ const UsuarioCard = ({ onVerMaisPress }) => {
 
       <View className="items-center">
         <TouchableOpacity onPress={onVerMaisPress}>
-          <Text className="text-base color-pink font-montSemibold">
+          <Text className="text-base color-dark-orange font-montSemibold">
             {profileData.tipoUsuario == 'especialista' ? 'Ver mais informações do especialista' : 'Ver mais informações do paciente'}
           </Text>
         </TouchableOpacity>

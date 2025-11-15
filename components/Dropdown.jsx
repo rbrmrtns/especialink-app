@@ -16,16 +16,10 @@ const defaultPickerStyles = StyleSheet.create({
 
 export const Dropdown = ({ onValueChange, items, placeholder, value, className = "" }) => {
 
-  const handleValueChange = (selectedValue) => {
-    if (selectedValue !== null && selectedValue !== undefined) {
-      onValueChange(selectedValue);
-    }
-  };
-
   return (
     <View className={className}>
       <RNPickerSelect
-        onValueChange={handleValueChange}
+        onValueChange={onValueChange}
         items={items}
         value={value}
         placeholder={placeholder}

@@ -1,9 +1,7 @@
-// import WeekdaySelector from '@wniemiec-component-reactnative/weekday-selector';
-import UsuarioCard from "../components/UsuarioCard"
-// import { AreaDeAtuacaoCard } from "../components/AreaDeAtuacaoCard"
+import { DateTimePicker } from "../components/DateTimePicker"
 
 export default function Teste () {
     return (
-        < UsuarioCard />
+        < DateTimePicker />
     )
 }

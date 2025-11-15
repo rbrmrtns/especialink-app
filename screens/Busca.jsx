@@ -111,6 +111,12 @@ export default function Busca() {
     value: null,
   };
 
+  const handleDropdownChange = (selectedValue) => {
+    if (selectedValue !== null && selectedValue !== undefined) {
+      onValueChange(selectedValue);
+    }
+  };
+
   return (
     <ScrollView>
       <StatusBar/>

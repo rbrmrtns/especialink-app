@@ -10,7 +10,7 @@ import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export default function Cadastro() {
+export default function AgendamentoConsulta() {
   // const navigation = useNavigation();
 
 //Responsive font size
@@ -35,6 +35,8 @@ export default function Cadastro() {
     value = value.replace(/^(\d{5})(\d)/, '$1-$2');
     return value.slice(0, 9);
   };
+
+  const [nomePaciente, setNomePaciente] = useState('');
 
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
