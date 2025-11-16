@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { GeradorImagemPerfil } from './GeradorImagemPerfil';
 
 const profileData = {
   tipoUsuario: 'especialista',
@@ -9,7 +10,7 @@ const profileData = {
   crp: 'CRP 06/139956',
   location: 'São Paulo',
   price: 'R$ 260',
-  duration: '50 a 60 min',
+  duration: '50 min',
   daysOfWork: 'Seg, Qua, Sex',
   workHours: '08h à 17h',
   specialties: [
@@ -18,8 +19,8 @@ const profileData = {
     'Desenvolvimento Pessoal', 'Desenvolvimento Profissional'
   ],
   bio: 'A psicóloga Rosana Tamyres Ferreira é pós-graduada pelo Instituto Israelita de Ensino e Pesquisa. Sua experiência em liderança, gestão de projetos e gestão de pessoas têm sido de grande importância em seus atendimentos na área clínica...',
-  avatarUrl: require('../assets/images/area_de_atuacao/psicologia.png'),
   whatsappNumber: '5553992000670',
+  corUsuario: '#7affd5'
 };
 
 const UsuarioCard = ({ onVerMaisPress }) => {
@@ -33,9 +34,9 @@ const UsuarioCard = ({ onVerMaisPress }) => {
       <View className="flex-row justify-between items-start">
         
         <View className="flex-row items-center">
-          <Image
-            source={ profileData.avatarUrl }
-            className="w-20 h-20 rounded-full"
+          <GeradorImagemPerfil
+            nomeUsuario={profileData.name}
+            corFundo={profileData.corUsuario}
           />
           <View className="ml-4"> 
             <Text className="text-xl font-montExtrabold color-dark-orange">{profileData.name}</Text>
@@ -85,7 +86,10 @@ const UsuarioCard = ({ onVerMaisPress }) => {
           
           <View>
             <Text className="text-sm font-montRegular color-orange uppercase">Duração</Text>
-            <Text className="text-sm font-montMedium text-gray-800">{profileData.duration}</Text>
+            <Text className="text-sm font-montMedium text-gray-800">
+              <Text className="text-sm font-montRegular text-gray-800">Aprox. </Text>
+              {profileData.duration}
+            </Text>
           </View>
           
           <View className="items-center">

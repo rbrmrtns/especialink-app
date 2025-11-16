@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, LogBox } from 'react-native';
 import Cadastro from './screens/Cadastro';
 import Login from './screens/Login';
 import Teste from './screens/Teste';
 import Perfil from './screens/Perfil';
 import Home from './screens/Home';
 import Busca from './screens/Busca';
+import AgendamentoConsulta from './screens/AgendamentoConsulta';
+import ListaConsultas from './screens/ListaConsultas';
 import I18n from 'i18n-js';
 import Mapbox from '@rnmapbox/maps';
 
@@ -32,6 +34,10 @@ import * as SplashScreen from 'expo-splash-screen';
 
 SplashScreen.preventAutoHideAsync();
 
+LogBox.ignoreLogs([
+  "UserAvatar: Support for defaultProps"
+]);
+
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     Montserrat_200ExtraLight,
@@ -56,7 +62,7 @@ export default function App() {
   return (
      <View style={styles.container} onLayout={onLayoutRootView} className="font-montRegular">
       <GluestackUIProvider config={config}>
-        <Teste />
+        <ListaConsultas />
       </GluestackUIProvider>
     </View>
   );
