@@ -1,0 +1,38 @@
+//consulta
+{
+  "paciente_id": "uid_do_paciente_abc",
+  "especialista_id": "uid_do_especialista_xyz",
+  "anotacoes": "Paciente relatou melhoria no sono...",
+  "data_hora": Timestamp // Objeto especial do Firestore (não é string)
+
+    // await addDoc(collection(db, 'consultas'), {
+    //     especialista_id: auth.currentUser.uid, // Pega o ID do logado automaticamente
+    //     paciente_id: pacienteId,
+    //     anotacoes: textoAnotacao,
+    //     // Converte o objeto Date do JS para Timestamp do Firestore
+    //     data_hora: Timestamp.fromDate(dataDateObject) 
+    // });
+}
+
+//contato
+{
+  "paciente_nome": "João da Silva",
+  "data_hora": Timestamp
+
+//   const registrarContato = async (especialistaId, nomePaciente) => {
+//   const meuId = auth.currentUser.uid; // Eu sou o paciente
+
+//   // Caminho: usuarios -> ID_ESPECIALISTA -> contatos_recebidos -> MEU_ID
+//   const contatoRef = doc(db, 'usuarios', especialistaId, 'contatos_recebidos', meuId);
+
+//   try {
+//     await setDoc(contatoRef, {
+//       data_hora: serverTimestamp(),
+//       paciente_nome: nomePaciente // Opcional: salva o nome para facilitar listagem
+//     });
+//     console.log('Contato registrado com sucesso!');
+//   } catch (error) {
+//     console.error('Erro ao registrar contato:', error);
+//   }
+// };
+}

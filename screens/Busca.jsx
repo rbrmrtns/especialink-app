@@ -128,7 +128,7 @@ export default function Busca() {
         <View className="mt-20 mb-10">
 
           <View className="-mt-3 mb-0">
-            <Text className="mb-1 text-center" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Busca</Text>
+            <Text className="mb-1 text-center" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Busca de Profissionais</Text>
           </View>
    
         </View>

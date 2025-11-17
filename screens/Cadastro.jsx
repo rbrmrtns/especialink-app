@@ -6,7 +6,10 @@ import { Dropdown } from '../components/Dropdown';
 import { TimeRangePicker } from '../components/TimeRangerPicker';
 import { CustomRadioGroup } from '../components/CustomRadioGroup';
 import WeekdaySelector from '@wniemiec-component-reactnative/weekday-selector';
-import axios from 'axios';
+var randomColor = require('randomcolor');
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebaseConfig';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -313,26 +316,38 @@ export default function Cadastro() {
   };
 
   useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/users/dadosForm`);
-                
-                setCondicoes(response.data.condicoes);
-                setConvenios(response.data.convenios);
+      const fetchData = async () => {
+          try {
+              const condicoesRef = collection(db, "condicoes");
+              const conveniosRef = collection(db, "convenios");
 
-            } catch (error) {
-                console.error("Erro ao buscar dados do servidor:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+              const [condicoesSnapshot, conveniosSnapshot] = await Promise.all([
+                  getDocs(condicoesRef),
+                  getDocs(conveniosRef)
+              ]);
 
-        fetchData();
-    }, []);
+            const listaCondicoes = condicoesSnapshot.docs.map(doc => ({
+                id: doc.id,           
+                nome: doc.data().nome 
+            }));
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#FFA500" style={{ flex: 1 }} />;
-  }
+            const listaConvenios = conveniosSnapshot.docs.map(doc => ({
+                id: doc.id,
+                nome: doc.data().nome
+            }));
+
+              setCondicoes(listaCondicoes);
+              setConvenios(listaConvenios);
+
+          } catch (error) {
+              console.error("Erro ao buscar dados:", error);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchData();
+  }, []);
 
   const radioOptions = [
   { value: -3, display: '3' },
@@ -404,14 +419,37 @@ const handleSignup = async () => {
     condicoes: condicoesSelecionadas,
   };
 
-  const cadastroData = {
-      dadosPessoais: { tipoUsuario, email, nome, senha, telefone, responsavel: tipoUsuario === 'paciente' ? responsavel : undefined },
-      endereco: { logradouro, numero: numeroEndereco, bairro, cidade, uf: UF, cep: CEP },
-      testes: { testeA: pontTesteA, testeB: pontTesteB, testeC: pontTesteC, testeD: pontTesteD },
-      selecoes: selecoes
+  let dadosUsuario = {
+      email,
+      nome,
+      telefone,
+      cor_img_perfil: randomColor({ luminosity: 'light', hue: 'random', format: 'hex' }),
+      ativo: true,
+      cidade,
+      tipo_usuario: tipoUsuario,
+      pont_test_a: pontTesteA,
+      pont_test_b: pontTesteB,
+      pont_test_c: pontTesteC,
+      pont_test_d: pontTesteD,
   };
 
-  if (tipoUsuario === 'especialista') {
+  let enderecoPaciente = null;
+
+  if (tipoUsuario === 'paciente') {
+      dadosUsuario.is_responsavel = responsavel;
+      dadosUsuario.condicoes_mentais = condicoesSelecionadas;
+
+      enderecoPaciente = {
+        logradouro: logradouro,
+        numero: numeroEndereco,
+        bairro: bairro,
+        cidade: cidade,
+        uf: UF,
+        cep: CEP
+      }
+  }
+
+  else if (tipoUsuario === 'especialista') {
       const horaInicioFormatada = formatDateToTimeString(expedienteInicio);
       const horaFimFormatada = formatDateToTimeString(expedienteFim);
 
@@ -420,21 +458,48 @@ const handleSignup = async () => {
           return; 
       }
 
-      cadastroData.dadosEspecialista = {
-          especialidade, conselho, numeroConselho: conselhoNmro, descricao,
-          precoConsulta, duracaoConsulta,
-          diasDeTrabalho, expedienteInicio: horaInicioFormatada, expedienteFim: horaFimFormatada,
+      dadosUsuario.area = tipo;
+      dadosUsuario.conselho = conselho;
+      dadosUsuario.conselho_nmro = conselhoNmro;
+      dadosUsuario.descricao = descricao;
+      dadosUsuario.preco_consulta = parseFloat(precoConsulta);
+      dadosUsuario.duracao_consulta = parseInt(duracaoConsulta);
+      dadosUsuario.dias_trabalho = diasDeTrabalho;
+      dadosUsuario.expediente_inicio = horaInicioFormatada;
+      dadosUsuario.expediente_fim = horaFimFormatada;
+      dadosUsuario.convenios = conveniosSelecionados;
+      dadosUsuario.especialidades = condicoesSelecionadas; 
+      dadosUsuario.consultorio = {
+          logradouro: logradouro,
+          numero: numeroEndereco,
+          bairro: bairro,
+          cidade: cidade,
+          uf: UF,
+          cep: CEP
       };
-
-      cadastroData.selecoes.convenios = conveniosSelecionados;
   }
 
   try {
-    const response = await axios.post(`${API_URL}/users/cadastrar`, cadastroData);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+    const user = userCredential.user;
+    
+    dadosUsuario.id = user.uid;
+
+    await setDoc(doc(db, "usuarios", user.uid), dadosUsuario);
+
+    if (tipoUsuario === 'paciente' && enderecoPacienteParaSubcolecao) {
+        await setDoc(doc(db, "usuarios", user.uid, "privado", "endereco"), enderecoPaciente);
+    }
+
     Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+
   } catch (error) {
     console.error('Erro ao cadastrar:', error);
-    Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro. Tente novamente.');
+    let mensagem = 'Ocorreu um erro ao realizar o cadastro.';
+    if (error.code === 'auth/email-already-in-use') mensagem = 'Este e-mail já está cadastrado.';
+    if (error.code === 'auth/weak-password') mensagem = 'A senha deve ter pelo menos 6 caracteres.';
+    if (error.code === 'auth/invalid-email') mensagemErro = 'O formato do email é inválido.';
+    Alert.alert('Erro', mensagem);
   }
 };
               
