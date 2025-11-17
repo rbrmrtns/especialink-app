@@ -1,15 +1,10 @@
+import 'react-native-gesture-handler';
 import React, { useCallback } from 'react';
-import { View, StyleSheet, LogBox } from 'react-native';
-import Cadastro from './screens/Cadastro';
-import Login from './screens/Login';
-import Teste from './screens/Teste';
-import Perfil from './screens/Perfil';
-import Home from './screens/Home';
-import Busca from './screens/Busca';
-import AgendamentoConsulta from './screens/AgendamentoConsulta';
-import ListaConsultas from './screens/ListaConsultas';
+import { AppRegistry, View, StyleSheet, LogBox } from 'react-native';
 import I18n from 'i18n-js';
 import Mapbox from '@rnmapbox/maps';
+import AppNavigation from './navigation/AppNavigation'; 
+import { AuthProvider } from './context/AuthContext';
 
 Mapbox.setAccessToken(`${process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN}`);
 
@@ -62,7 +57,9 @@ export default function App() {
   return (
      <View style={styles.container} onLayout={onLayoutRootView} className="font-montRegular">
       <GluestackUIProvider config={config}>
-        <ListaConsultas />
+        <AuthProvider>
+           <AppNavigation /> 
+        </AuthProvider>
       </GluestackUIProvider>
     </View>
   );

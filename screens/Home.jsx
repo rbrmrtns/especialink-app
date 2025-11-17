@@ -5,7 +5,7 @@ import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto';
 import Mapbox from '@rnmapbox/maps';
 // import { useNavigation } from '@react-navigation/native';
 // import { collection, getDocs, query, where } from 'firebase/firestore';
-// import { db, auth } from './../config/firebase';
+// import { db, auth } from './../config/firebaseConfig';
 // import { useFocusEffect } from '@react-navigation/native';
 
 const SAO_PAULO_COORDS = [-46.6333, -23.5505];

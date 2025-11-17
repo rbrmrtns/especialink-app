@@ -3,7 +3,6 @@ import React, { useState, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator, TransitionSpecs } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { colors } from './../assets/styles/Styles.jsx';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { AuthContext } from '../context/AuthContext';

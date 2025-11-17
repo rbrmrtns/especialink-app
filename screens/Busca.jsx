@@ -9,7 +9,7 @@ import { AreaDeAtuacaoCard } from '../components/AreaDeAtuacaoCard';
 import UsuarioCard from '../components/UsuarioCard'
 import {UsuarioCardCompleto} from '../components/UsuarioCardCompleto'
 // import { signOut } from 'firebase/auth'
-// import { auth } from '../config/firebase'
+// import { auth } from '../config/firebaseConfig'
 
 export default function Busca() {
 

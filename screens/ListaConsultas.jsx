@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 // import { useNavigation } from '@react-navigation/native'
 import ConsultaCard from '../components/ConsultaCard';
 // import { signOut } from 'firebase/auth'
-// import { auth } from '../config/firebase'
+// import { auth } from '../config/firebaseConfig'
 
 export default function Busca() {
 

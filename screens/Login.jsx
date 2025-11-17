@@ -5,7 +5,7 @@ import { EnvelopeIcon, KeyIcon } from 'react-native-heroicons/outline'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native'
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth } from '../config/firebaseConfig';
 
 const coresButton = ['#ffbf00', '#ff7900'];
 
