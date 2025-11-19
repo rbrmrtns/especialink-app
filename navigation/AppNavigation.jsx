@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useState, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator, TransitionSpecs } from '@react-navigation/stack';
@@ -10,7 +10,8 @@ import { AuthContext } from '../context/AuthContext';
 //Views
 import Login from '../screens/Login';
 import Cadastro from '../screens/Cadastro';
-import Home from '../screens/Home';
+import HomePaciente from '../screens/HomePaciente';
+import HomeEspecialista from '../screens/HomeEspecialista';
 import Perfil from '../screens/Perfil';
 import Edicao from '../screens/Edicao';
 import Busca from '../screens/Busca';
@@ -50,6 +51,7 @@ const CustomTabBarButton = ({children, onPress}) => (
         width: 60,
             height: 60,
             borderRadius: 100,
+        alignSelf: 'center'
     }}
     onPress={onPress}
     >
@@ -59,6 +61,16 @@ const CustomTabBarButton = ({children, onPress}) => (
     </TouchableOpacity>
 );
 
+const HomeWrapper = () => {
+  const { userProfile } = useContext(AuthContext);
+  
+  if (userProfile?.tipo_usuario === 'paciente') {
+    return <HomePaciente />;
+  } else {
+    return <HomeEspecialista />;
+  }
+};
+
 // NAVBAR
 const Tabs = () => {
     const { userProfile } = useContext(AuthContext);
@@ -66,7 +78,7 @@ const Tabs = () => {
 
     return (
         <Tab.Navigator 
-            initialRouteName="Home" 
+            initialRouteName="Home"
             screenOptions={{
                 tabBarShowLabel: false,
                 headerShown: false,
@@ -94,7 +106,7 @@ const Tabs = () => {
                 )
             }}/>
 
-            <Tab.Screen name="Home" component={Home} options={{
+            <Tab.Screen name="Home" component={HomeWrapper} options={{
             tabBarIcon: ({ focused }) => (
                 <Image
                     source={require('../assets/icons/home-heart.png')}
@@ -116,7 +128,7 @@ const Tabs = () => {
                 tabBarIcon: ({focused}) => (
                     <View style={{alignItems: 'center', justifyContent: 'center', top: 5}}>
                         <MagnifyingGlassIcon 
-                            size={20} 
+                            size={25} 
                             color={focused ? '#ffbf00' : 'grey'} 
                         />
                     </View>
@@ -162,7 +174,6 @@ const AppNavigation = () => {
                         <>
                             <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
                             <Stack.Screen name="Busca" component={Busca} options={{ headerShown: false }} />
-                            <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
                             <Stack.Screen name="Perfil" component={Perfil} options={{ headerShown: false }} />
                             <Stack.Screen name="Edicao" component={Edicao} options={{ headerShown: false }} />
                         </>
@@ -171,7 +182,6 @@ const AppNavigation = () => {
                             <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
                             <Stack.Screen name="AgendamentoConsulta" component={AgendamentoConsulta} options={{ headerShown: false }} />
                             <Stack.Screen name="ListaConsultas" component={ListaConsultas} options={{ headerShown: false }} />
-                            <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
                             <Stack.Screen name="Perfil" component={Perfil} options={{ headerShown: false }} />
                             <Stack.Screen name="Edicao" component={Edicao} options={{ headerShown: false }} />
                         </>

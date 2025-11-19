@@ -16,9 +16,9 @@ export default function Login() {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if(email && password) { 
+    if(email && senha) { 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, senha);
       } catch(err) {
         console.log('Erro ao fazer login:', err.code);
 

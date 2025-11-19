@@ -2,137 +2,154 @@ import React from 'react';
 import { View, Text, Image, Modal, Pressable, SafeAreaView } from 'react-native';
 import { GeradorImagemPerfil } from './GeradorImagemPerfil';
 
-const profileData = {
-  tipoUsuario: 'especialista',
-  name: 'Rosana Ferreira',
-  role: 'Psicóloga',
-  crp: 'CRP 06/139956',
-  location: 'São Paulo',
-  price: 'R$ 260',
-  duration: '50 min',
-  daysOfWork: 'Seg, Qua, Sex',
-  workHours: '08h à 17h',
-  specialties: [
-    'Ansiedade', 'Compulsões', 'Depressão',
-    'Desenvolvimento de Competências Profissionais',
-    'Desenvolvimento Pessoal', 'Desenvolvimento Profissional'
-  ],
-  healthInsurance: [
-    'Bradesco Saúde', 'Unimed', 'IPE'
-  ],
-  bio: 'A psicóloga Rosana Tamyres Ferreira é pós-graduada pelo Instituto Israelita de Ensino e Pesquisa. Sua experiência em liderança, gestão de projetos e gestão de pessoas têm sido de grande importância em seus atendimentos na área clínica...',
-  whatsappNumber: '5553992000670',
-  corUsuario: '#7affd5'
-};
+const Conteudo = ({ dadosPerfil }) => {
+  if (!dadosPerfil) return null;
 
-const Conteudo = () => (
-  <>
-  <View className="flex-row items-center">
-    <GeradorImagemPerfil
-      nomeUsuario={profileData.name}
-      corFundo={profileData.corUsuario}
-    />
-    <View className="ml-4"> 
-      <Text className="text-xl font-montExtrabold color-dark-orange">{profileData.name}</Text>
-      {profileData.tipoUsuario == 'especialista' && (
+  const nomesAreas = {
+    psicologa: 'Psicóloga',
+    psiquiatra: 'Psiquiatra',
+    psicopedagoga: 'Psicopedagoga',
+    fonoaudiologa: 'Fonoaudióloga',
+    terapeuta_ocupacional: 'Terapeuta Ocupacional'
+  };
+
+  const crpFinal = `${dadosPerfil.conselho} ${dadosPerfil.conselho_nmro}`;
+
+  const precoFinal = dadosPerfil.preco_consulta ? `R$ ${dadosPerfil.preco_consulta}` : 'Sob consulta';
+  const precoClasseTamanho = dadosPerfil.preco_consulta ? 'text-2xl' : 'text-base';
+
+  const duracaoFinal = dadosPerfil.duracao_consulta ? `${dadosPerfil.duracao_consulta} min` : 'Sob consulta';
+
+  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const diasTrabalhoFinal = dadosPerfil.dias_trabalho && dadosPerfil.dias_trabalho.length > 0
+    ? dadosPerfil.dias_trabalho.map(nmro => diasSemana[nmro]).join(', ') 
+    : 'Sob consulta';
+
+  const horasTrabalho = dadosPerfil.expediente_inicio && dadosPerfil.expediente_fim ? 
+  `${dadosPerfil.expediente_inicio.slice(0, 2)}h às ${dadosPerfil.expediente_fim.slice(0, 2)}h` : 'Sob consulta';
+
+  const condicoes = dadosPerfil.tipo_usuario === 'especialista' ? dadosPerfil.especialidades : dadosPerfil.condicoes_mentais;
+
+  const temDadosConsulta = dadosPerfil.preco_consulta || dadosPerfil.duracao_consulta || dadosPerfil.dias_trabalho?.length > 0;
+
+  const temCondicoes = condicoes && condicoes.length > 0;
+  
+  const temConvenios = dadosPerfil.convenios && dadosPerfil.convenios.length > 0;
+
+  return (
+    <>
+    <View className="flex-row items-center">
+      <GeradorImagemPerfil
+        nomeUsuario={dadosPerfil.nome}
+        corFundo={dadosPerfil.cor_img_perfil}
+      />
+      <View className="ml-4"> 
+        <Text className="text-xl font-montExtrabold color-dark-orange">{dadosPerfil.nome}</Text>
+        {dadosPerfil.tipo_usuario == 'especialista' && (
+        <>
+        <Text className="text-base font-montMedium text-gray-700">{nomesAreas[dadosPerfil.area]}</Text>
+        <Text className="text-base font-montExtrabold color-dark-orange">{crpFinal}</Text>
+        </>
+        )}
+        <Text className="text-sm font-montRegular text-gray-700">{dadosPerfil.cidade}</Text>
+      </View>
+    </View>
+
+    <View className="mt-4">
+
+    {dadosPerfil.tipo_usuario == 'especialista' && temDadosConsulta && (
       <>
-      <Text className="text-base font-montMedium text-gray-700">{profileData.role}</Text>
-      <Text className="text-base font-montExtrabold color-dark-orange">{profileData.crp}</Text>
-      </>
-      )}
-      <Text className="text-sm font-montRegular text-gray-700">{profileData.location}</Text>
-    </View>
-  </View>
-
-  <View className="mt-4">
-
-  {profileData.tipoUsuario == 'especialista' && (
-    <>
-  <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
-      Consulta
-    </Text>
-  <View className="flex-row justify-between items-start pb-4 mb-4 border-b border-gray-200">
-    
-    <View>
-      <Text className="text-sm font-montRegular color-orange uppercase">Duração</Text>
-      <Text className="text-sm font-montMedium text-gray-800">
-        <Text className="text-sm font-montRegular text-gray-800">Aprox. </Text>
-        {profileData.duration}
-      </Text>
-    </View>
-    
-    <View className="items-center">
-      <Text className="text-sm font-montRegular color-orange uppercase">Preço</Text>
-      <Text className="text-2xl font-montExtrabold font-bold text-gray-800">{profileData.price}</Text>
-    </View>
-
-    <View className="items-end">
-      <Text className="text-sm font-montRegular color-orange uppercase">Atendimento</Text>
-      <Text className="text-sm font-montMedium text-gray-800">{profileData.daysOfWork}</Text>
-      <Text className="text-sm font-montMedium text-gray-800">{profileData.workHours}</Text>
-    </View>
-  </View>
-  </>
-  )}
-
-  <View>
     <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
-      {profileData.tipoUsuario == 'especialista' ? 'Especialidades' : 'Condições de Saúde Mental'}
-    </Text>
-    <View className="flex-row flex-wrap gap-2 justify-center">
-      {profileData.specialties.map((spec) => (
-        <View key={spec} className="bg-white border border-gray-400 rounded-full px-3 py-1">
-          <Text className="text-xs font-montLight text-gray-700">{spec}</Text>
-        </View>
-      ))}
-    </View>
-  </View>
-  </View>
+        Consulta
+      </Text>
+    <View className="flex-row justify-between items-start pb-4 mb-4 border-b border-gray-200">
+      
+      <View>
+        <Text className="text-sm font-montRegular color-orange uppercase">Duração</Text>
+        <Text className="text-base font-montMedium text-gray-800">
+          <Text className="text-sm font-montRegular text-gray-800">Aprox. </Text>
+          {duracaoFinal}
+        </Text>
+      </View>
+      
+      <View className="items-center">
+        <Text className="text-sm font-montRegular color-orange uppercase">Preço</Text>
+        <Text className={`${precoClasseTamanho} font-montExtrabold font-bold text-gray-800`}>{precoFinal}</Text>
+      </View>
 
-  {profileData.tipoUsuario == 'especialista' && (
-    <>
-    <View className="mt-4 pt-4 border-t border-gray-200">
+      <View className="items-end">
+        <Text className="text-sm font-montRegular color-orange uppercase">Atendimento</Text>
+        <Text className="text-sm font-montMedium text-gray-800">{diasTrabalhoFinal}</Text>
+        <Text className="text-sm font-montMedium text-gray-800">{horasTrabalho}</Text>
+      </View>
+    </View>
+    </>
+    )}
+
+    {temCondicoes && (
+      <>
+    <View>
       <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
-        Convênio(s)
+        {dadosPerfil.tipo_usuario == 'especialista' ? 'Especialidades' : 'Condições de Saúde Mental'}
       </Text>
       <View className="flex-row flex-wrap gap-2 justify-center">
-        {profileData.healthInsurance.map((hi) => (
-          <View key={hi} className="bg-white border border-gray-400 rounded-full px-3 py-1">
-            <Text className="text-xs font-montLight text-gray-700">{hi}</Text>
+        {condicoes && condicoes.map((conds) => (
+          <View key={conds} className="bg-white border border-gray-400 rounded-full px-3 py-1">
+            <Text className="text-xs font-montLight text-gray-700">{conds}</Text>
           </View>
         ))}
       </View>
     </View>
-    </>
+      </>
+    )}
+    </View>
+
+    {dadosPerfil.tipo_usuario == 'especialista' && temConvenios && (
+      <>
+      <View className="mt-4 pt-4 border-t border-gray-200">
+        <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
+          Convênio(s)
+        </Text>
+        <View className="flex-row flex-wrap gap-2 justify-center">
+          {dadosPerfil.convenios.map((convs) => (
+            <View key={convs} className="bg-white border border-gray-400 rounded-full px-3 py-1">
+              <Text className="text-xs font-montLight text-gray-700">{convs}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      </>
   )}
 
-  {profileData.tipoUsuario == 'especialista' && (
+  {dadosPerfil.tipo_usuario == 'especialista' && dadosPerfil.descricao && (
   <>
   <View className="mt-4 pt-4 border-t border-gray-200">
     <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
-      Vida Profissional
+      Descrição
     </Text>
     <Text className="text-sm font-montRegular text-gray-600">
-      {profileData.bio}
+      {dadosPerfil.descricao}
     </Text>
   </View>
   </>
   )}
 
   </>
-)
+  )
+}
 
 export const UsuarioCardCompleto = ({ 
   variant = 'modal',
   modalVisible = false,
-  onCloseModal = () => {}
+  onCloseModal = () => {},
+  dadosPerfil
 }) => {
   switch (variant) {
     
     case 'embedded':
       return (
         <View className="p-4">
-          <Conteudo />
+          <Conteudo dadosPerfil={dadosPerfil} />
         </View>
       );
 
@@ -151,7 +168,7 @@ export const UsuarioCardCompleto = ({
           >
             <SafeAreaView>
               <Pressable className="bg-white rounded-lg shadow-lg p-4 m-4 w-[90vw]">
-                <Conteudo />
+                <Conteudo dadosPerfil={dadosPerfil} />
               </Pressable>
             </SafeAreaView>
           </Pressable>

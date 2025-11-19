@@ -235,10 +235,10 @@ export default function Cadastro() {
 			"Dados pessoais",
 			"Endereço",
       "Condições mentais",         
-			"Teste de compatibilidade - Etapa A",           
-			"Teste de compatibilidade - Etapa B",              
-			"Teste de compatibilidade - Etapa C",                  
-			"Teste de compatibilidade - Etapa D",     
+			"Teste de preferências - Etapa A",           
+			"Teste de preferências - Etapa B",              
+			"Teste de preferências - Etapa C",                  
+			"Teste de preferências - Etapa D",     
 		],
 		especialista: [
 			"Dados pessoais",   
@@ -246,10 +246,10 @@ export default function Cadastro() {
 			"Especialização e conselho",      
 			"Consultas e horário de trabalho",           
 			"Especialidades e convênios",
-			"Teste de compatibilidade - Etapa A",    
-			"Teste de compatibilidade - Etapa B",       
-			"Teste de compatibilidade - Etapa C",            
-			"Teste de compatibilidade - Etapa D",                  
+			"Teste de preferências - Etapa A",    
+			"Teste de preferências - Etapa B",       
+			"Teste de preferências - Etapa C",            
+			"Teste de preferências - Etapa D",                  
 		]
 	};
 
@@ -293,13 +293,13 @@ export default function Cadastro() {
         {visibleSections[type] && (
           <View className="flex-row flex-wrap w-full">
             {items.map(item => {
-              const isSelected = selectedIds.includes(item.id);
+              const isSelected = selectedIds.includes(item.nome);
               
               return (
                 <Pressable
                   key={item.id}
                   className={`border border-gray-200 px-5 py-1.5 rounded-full mr-2 mb-3 bg-white ${isSelected ? `bg-white border-1 border-dark-orange` : ''}`}
-                  onPress={() => toggleTag(item.id, type)}
+                  onPress={() => toggleTag(item.nome, type)}
                 >
                   <Text 
                     style={{ fontFamily: 'Montserrat_500Medium', fontSize: 12 }}
@@ -366,16 +366,16 @@ export default function Cadastro() {
   };
 
   const handleWeekDay = (weekday, selected) => {
-  if (selected) {
-    setDiasDeTrabalho(diasAnteriores => 
-      [...diasAnteriores, weekday]
-    );
-  } else {
-    setDiasDeTrabalho(diasAnteriores =>
-      diasAnteriores.filter(dia => dia !== weekday)
-    );
-  }
-};
+    if (selected) {
+      setDiasDeTrabalho(diasAnteriores => 
+        [...diasAnteriores, weekday]
+      );
+    } else {
+      setDiasDeTrabalho(diasAnteriores =>
+        diasAnteriores.filter(dia => dia !== weekday)
+      );
+    }
+  };
 
 const handleSignup = async () => {
   const camposObrigatoriosComuns = {
@@ -419,6 +419,10 @@ const handleSignup = async () => {
     condicoes: condicoesSelecionadas,
   };
 
+  function somador(total, num) {
+      return total + num;
+  }
+
   let dadosUsuario = {
       email,
       nome,
@@ -427,10 +431,10 @@ const handleSignup = async () => {
       ativo: true,
       cidade,
       tipo_usuario: tipoUsuario,
-      pont_test_a: pontTesteA,
-      pont_test_b: pontTesteB,
-      pont_test_c: pontTesteC,
-      pont_test_d: pontTesteD,
+      pont_test_a: pontTesteA.map(valor => parseInt(valor, 10)).reduce(somador),
+      pont_test_b: pontTesteB.map(valor => parseInt(valor, 10)).reduce(somador),
+      pont_test_c: pontTesteC.map(valor => parseInt(valor, 10)).reduce(somador),
+      pont_test_d: pontTesteD.map(valor => parseInt(valor, 10)).reduce(somador),
   };
 
   let enderecoPaciente = null;
@@ -487,7 +491,7 @@ const handleSignup = async () => {
 
     await setDoc(doc(db, "usuarios", user.uid), dadosUsuario);
 
-    if (tipoUsuario === 'paciente' && enderecoPacienteParaSubcolecao) {
+    if (tipoUsuario === 'paciente' && enderecoPaciente) {
         await setDoc(doc(db, "usuarios", user.uid, "privado", "endereco"), enderecoPaciente);
     }
 
@@ -1498,7 +1502,7 @@ const handleSignup = async () => {
               <Text 
                 style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-left px-2">
-                {tipoUsuario === 'paciente' ? 'Focasse no passado da minha vida' : 'Focar no passado das vidas dos pacientes'}
+                {tipoUsuario === 'paciente' ? 'Focasse na minha vida no passado' : 'Focar na vida dos pacientes no passado'}
               </Text>
 
               {/* Texto do Centro */}
@@ -1510,7 +1514,7 @@ const handleSignup = async () => {
               {/* Texto da Direita */}
               <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-right px-2">
-                {tipoUsuario === 'paciente' ? 'Focasse no presente da minha vida' : 'Focar no presente das vidas dos pacientes'}
+                {tipoUsuario === 'paciente' ? 'Focasse na minha vida no presente' : 'Focar na vida dos pacientes no presente'}
               </Text>
             </View> 
 

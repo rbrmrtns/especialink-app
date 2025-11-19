@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@expo-google-fonts/montserrat": "^0.4.2",
-    "@expo/config-plugins": "~8.0.0",
     "@gluestack-style/react": "^1.0.57",
     "@gluestack-ui/config": "^1.1.18",
     "@gluestack-ui/themed": "^1.1.22",

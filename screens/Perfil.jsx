@@ -1,24 +1,33 @@
-import { View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
-import React from 'react'
+import { ActivityIndicator, View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
+import React, { useContext } from 'react'
 import Animated, { FlipInEasyX } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-// import { useNavigation } from '@react-navigation/native'
-import {UsuarioCardCompleto} from '../components/UsuarioCardCompleto'
-// import { signOut } from 'firebase/auth'
-// import { auth } from '../config/firebaseConfig'
+import { useNavigation } from '@react-navigation/native'
+import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto'
+import { signOut } from 'firebase/auth'
+import { AuthContext } from '../context/AuthContext';
+import { auth } from '../config/firebaseConfig';
 
 export default function Perfil() {
+  const navigation = useNavigation()
 
-  // const navigation = useNavigation()
+  const { loading, userProfile } = useContext(AuthContext);
 
-  // const user = auth.currentUser;
-  // const displayName = user?.displayName || 'Guest';
+  if (loading || !userProfile) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size="large" color="#ffbf00" />
+      </View>
+    );
+  }
 
-  //Function to log out
-  // const handleLogout = async ()=> {
-  //   await signOut(auth);
-  //   navigation.navigate('Welcome')
-  // }
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+  };
 
   return (
     <ScrollView>
@@ -34,7 +43,7 @@ export default function Perfil() {
             <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Perfil</Text>
             
             <Pressable 
-            // onPress={handleLogout}
+            onPress={handleLogout}
             >
             <View className="flex-row mt-1.5">
               <Image className="w-4 h-4 mr-1"  style={{ tintColor: '#63254E' }}
@@ -79,7 +88,7 @@ export default function Perfil() {
                               <Text style={{ fontFamily: 'Montserrat_600SemiBold'}}
                               className="text-lg">Ficha de</Text>
                               <Text style={{ fontFamily: 'Montserrat_500Medium_Italic'}}
-                              className="text-lg -mt-1">Rosana</Text>
+                              className="text-lg -mt-1">{userProfile.nome}</Text>
                           </View>
                       </View>
 
@@ -89,7 +98,7 @@ export default function Perfil() {
               </ImageBackground>
 
               {/* Card Bottom */}
-              <UsuarioCardCompleto variant="embedded" />
+              <UsuarioCardCompleto dadosPerfil={userProfile} variant="embedded" />
 
           </View>
         </Animated.View>
@@ -98,7 +107,9 @@ export default function Perfil() {
 
       <View>
         {/* Button */}
-        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5">
+        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
+          // onPress={()=> navigation.navigate('Edicao', { tipo: 'dados_pessoais'})}
+        >
           
           <View className="flex-row">
             <Image className="w-8 h-8 mr-4" 
@@ -117,7 +128,7 @@ export default function Perfil() {
 
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-        // onPress={()=> navigation.navigate('UserSkinType')}
+          // onPress={()=> navigation.navigate('Edicao', { tipo: 'dados_profissionais'})}
         >
 
           <View className="flex-row">
@@ -137,7 +148,7 @@ export default function Perfil() {
 
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-        // onPress={()=> navigation.navigate('CGLong')}
+          // onPress={()=> navigation.navigate('refazer-teste')}
         >
           
           <View className="flex-row">

@@ -1,25 +1,109 @@
-import { View, Text, ScrollView, StatusBar, PixelRatio, ImageBackground, Image } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, Text, ScrollView, StatusBar, PixelRatio, ImageBackground, Image, Alert } from 'react-native'
+import React, { useEffect, useState, useContext } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-// import { useNavigation } from '@react-navigation/native'
 import ConsultaCard from '../components/ConsultaCard';
-// import { signOut } from 'firebase/auth'
-// import { auth } from '../config/firebaseConfig'
+import { collection, query, where, orderBy, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
+import { AuthContext } from '../context/AuthContext';
 
-export default function Busca() {
+export default function ListaConsultas() {
+  const { loading, userProfile } = useContext(AuthContext);
+  
+  if (loading || !userProfile) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size="large" color="#ffbf00" />
+      </View>
+    );
+  };
 
-  // const navigation = useNavigation()
-
-  // const user = auth.currentUser;
-  // const displayName = user?.displayName || 'Guest';
-
-  //Function to log out
-  // const handleLogout = async ()=> {
-  //   await signOut(auth);
-  //   navigation.navigate('Welcome')
-  // }
   const fontScale = PixelRatio.getFontScale();
   const getFontSize = size => size / fontScale;
+
+  const [consultas, setConsultas] = useState([]);
+
+  useEffect(() => {
+    const fetchConsultasEspecialista = async () => {
+
+      try {
+        const consultasRef = collection(db, "consultas");
+
+        const q = query(
+          consultasRef, 
+          where("especialista_id", "==", userProfile.id),
+          orderBy("created_at", "desc") 
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        const listaFormatada = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          
+          const dataInicio = data.data_hora.toDate();
+
+          const duracaoMinutos = userProfile.duracao_consulta; 
+
+          const dataFim = new Date(dataInicio.getTime() + duracaoMinutos * 60000);
+
+          const formatH = (date) => {
+            const h = date.getHours().toString().padStart(2, '0');
+            const m = date.getMinutes().toString().padStart(2, '0');
+            return m === '00' ? `${h}h` : `${h}h${m}`;
+          };
+
+          const formatDia = (date) => {
+            const d = date.getDate().toString().padStart(2, '0');
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${d}/${m}`;
+          };
+
+          return {
+              id: doc.id,
+              nomePaciente: data.paciente_nome,
+              corImgPerfilPaciente: data.paciente_cor_img_perfil,
+              diaConsulta: formatDia(dataInicio),
+              horarioConsulta: `${formatH(dataInicio)} às ${formatH(dataFim)}`,
+              anotacoes: data.anotacoes || 'Sem anotações.'
+          };
+      });
+
+        setConsultas(listaFormatada);
+
+      } catch (error) {
+        console.error("Erro ao buscar consultas:", error);
+        
+        if (error.message.includes("index")) {
+            console.log("⚠️ VOCÊ PRECISA CRIAR UM ÍNDICE NO FIREBASE. OLHE O LINK ACIMA.");
+        }
+      }
+    };
+
+    fetchConsultasEspecialista();
+  }, [userProfile]);
+
+  const excluirConsulta = async (idConsulta) => {
+    Alert.alert(
+      "Limpar Consulta",
+      "Tem certeza que deseja remover esta consulta do histórico?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Sim, limpar", 
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, "consultas", idConsulta));
+              
+              setConsultas(listaAtual => listaAtual.filter(item => item.id !== idConsulta));
+              
+            } catch (error) {
+              console.error("Erro ao excluir:", error);
+              Alert.alert("Erro", "Não foi possível apagar a consulta.");
+            }
+          } 
+        }
+      ]
+    );
+  };
 
   return (
     <ScrollView>
@@ -45,9 +129,13 @@ export default function Busca() {
       </ImageBackground>
 
       <View className="mb-28">
-        <ConsultaCard />
-
-        <ConsultaCard />
+        {consultas.map((consulta) => (
+          <ConsultaCard 
+            key={consulta.id}
+            dadosConsulta={consulta}
+            onDelete={() => excluirConsulta(consulta.id)}
+          />
+        ))}
       </View>
     
     </View>
