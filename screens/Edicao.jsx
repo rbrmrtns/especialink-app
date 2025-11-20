@@ -1,24 +1,33 @@
 // import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ImageBackground, PixelRatio, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ImageBackground, PixelRatio, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { CustomCheckbox } from '../components/CustomCheckbox';
 import { Dropdown } from '../components/Dropdown';
 import { TimeRangePicker } from '../components/TimeRangerPicker';
 import { CustomRadioGroup } from '../components/CustomRadioGroup';
-import axios from 'axios';
+import WeekdaySelector from '@wniemiec-component-reactnative/weekday-selector';
+var randomColor = require('randomcolor');
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebaseConfig';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+export default function Edicao({ route }) {
+  const { loading, userProfile } = useContext(AuthContext);
+  
+  if (loading || !userProfile) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size="large" color="#ffbf00" />
+      </View>
+    );
+  };
 
-export default function Cadastro() {
-  // const navigation = useNavigation();
+  const { tipoEdicao } = route.params || {};
 
-//Responsive font size
   const fontScale = PixelRatio.getFontScale();
   const getFontSize = size => size / fontScale;
 
-  const [loading, setLoading] = useState(true);
-
-  const [tipoUsuario, setTipoUsuario] = useState('paciente');
+  const tipoUsuario = userProfile.tipo_usuario;
 
   const maskTelefone = (value) => {
     if (!value) return "";
@@ -98,16 +107,15 @@ export default function Cadastro() {
     value: null,
   };
 
-  const listaDeEspecialidades = [
+  const listaDeTipos = [
     { label: 'Psicólogo(a)', value: 'psicologa' },
     { label: 'Psiquiatra', value: 'psiquiatra' },
     { label: 'Psicopedagogo(a)', value: 'psicopedagoga' },
-    { label: 'Neuropsicopedagogo(a)', value: 'neuropsicopedagoga' },
     { label: 'Fonoaudióloga', value: 'fonoaudiologa' },
     { label: 'Terapeuta Ocupacional', value: 'terapeuta_ocupacional' }
   ];
 
-  const placeholderEspecialidade = {
+  const placeholderTipo = {
     label: 'Selecione a sua área de atuação',
     value: null,
   };
@@ -136,12 +144,13 @@ export default function Cadastro() {
 
   const [responsavel, setResponsavel] = useState(false);
 
-  const [especialidade, setEspecialidade] = useState('');
+  const [tipo, setTipo] = useState('');
   const [conselho, setConselho] = useState('');
   const [conselhoNmro, setConselhoNmro] = useState('');
   const [descricao, setDescricao] = useState('');
   const [precoConsulta, setPrecoConsulta] = useState('');
   const [duracaoConsulta, setDuracaoConsulta] = useState('');
+  const [diasDeTrabalho, setDiasDeTrabalho] = useState([]);
   const [expedienteInicio, setExpedienteInicio] = useState(defaultStartTime);
   const [expedienteFim, setExpedienteFim] = useState(defaultEndTime);
 
@@ -168,8 +177,8 @@ export default function Cadastro() {
     }
   };
 
-  const [experiencias, setExperiencias] = useState([]);
-  const [experienciasSelecionadas, setExperienciasSelecionadas] = useState([]);
+  const [condicoes, setCondicoes] = useState([]);
+  const [condicoesSelecionadas, setCondicoesSelecionadas] = useState([]);
   const [convenios, setConvenios] = useState([]);
   const [conveniosSelecionados, setConveniosSelecionados] = useState([]);
 
@@ -179,15 +188,16 @@ export default function Cadastro() {
 	const [pontTesteD, setPontTesteD] = useState(Array(5).fill(null));
 
 	const stepsByType = {
-		paciente: 6,
-		especialista: 9,
+		dados_pessoais: 2,
+    dados_profissionais: 3,
+    condicoes: 1,
+		refazer_teste: 4
 	};
 
   //MULTI-STEP-PROGRESS
   const [step, setStep] = useState(1);
-  const totalSteps = stepsByType[tipoUsuario];
+  const totalSteps = stepsByType[tipoEdicao];
   const progress = (step / totalSteps) * 100;
-  const [formData, setFormData] = useState(Array(totalSteps).fill(''));
 
   //Button to go to the next step
   const handleNext = () => {
@@ -228,25 +238,24 @@ export default function Cadastro() {
   };
 
 	const stepTitlesByType = {
-		paciente: [
-			"Dados pessoais",
-			"Endereço",         
-			"Teste de compatibilidade - Etapa A",           
-			"Teste de compatibilidade - Etapa B",              
-			"Teste de compatibilidade - Etapa C",                  
-			"Teste de compatibilidade - Etapa D",     
-		],
-		especialista: [
-			"Dados pessoais",   
-			"Endereço",         
-			"Especialização e conselho",      
+    dados_pessoais: [
+      "Dados pessoais",
+			"Endereço",
+    ],
+    dados_profissionais: [
+      "Especialização e conselho",      
 			"Consultas e horário de trabalho",           
-			"Experiências e Convênios",
-			"Teste de compatibilidade - Etapa A",    
-			"Teste de compatibilidade - Etapa B",       
-			"Teste de compatibilidade - Etapa C",            
-			"Teste de compatibilidade - Etapa D",                  
-		]
+			"Especialidades e convênios",
+    ],
+    condicoes: [
+      "Condições mentais", 
+    ],
+    refazer_teste: [
+      "Teste de preferências - Etapa A",           
+			"Teste de preferências - Etapa B",              
+			"Teste de preferências - Etapa C",                  
+			"Teste de preferências - Etapa D",
+    ]
 	};
 
     // Dynamic titles of the steps
@@ -258,15 +267,9 @@ export default function Cadastro() {
 
   //TAGS
   const [visibleSections, setVisibleSections] = useState({
-    experiencias: true,
+    condicoes: true,
     convenios: false 
   });
-
-  // Styles of the tags
-  const tagStyles = {
-    experiencias: 'bg-white border-1 border-dark-yellow',
-    convenios: 'bg-white border-1 border-dark-orange',
-  };
 
   //Toggle section of tags
   const toggleSection = (section) => {
@@ -278,7 +281,7 @@ export default function Cadastro() {
 
   //Toggle function of the tags
   const toggleTag = (tagId, type) => {
-    const setter = type === 'experiencias' ? setExperienciasSelecionadas : setConveniosSelecionados;
+    const setter = type === 'condicoes' ? setCondicoesSelecionadas : setConveniosSelecionados;
     setter(prevIds =>
       prevIds.includes(tagId) 
         ? prevIds.filter(id => id !== tagId) 
@@ -288,25 +291,25 @@ export default function Cadastro() {
 
   //Render the tags
   const renderTags = (items, type) => {
-    const selectedIds = type === 'experiencias' ? experienciasSelecionadas : conveniosSelecionados;
+    const selectedIds = type === 'condicoes' ? condicoesSelecionadas : conveniosSelecionados;
     
     return (
       <>
         {visibleSections[type] && (
           <View className="flex-row flex-wrap w-full">
             {items.map(item => {
-              const isSelected = selectedIds.includes(item.id);
+              const isSelected = selectedIds.includes(item.nome);
               
               return (
                 <Pressable
                   key={item.id}
-                  className={`border border-gray-200 px-5 py-1.5 rounded-full mr-2 mb-3 bg-white ${isSelected ? tagStyles[type] : ''}`}
-                  onPress={() => toggleTag(item.id, type)}
+                  className={`border border-gray-200 px-5 py-1.5 rounded-full mr-2 mb-3 bg-white ${isSelected ? `bg-white border-1 border-dark-orange` : ''}`}
+                  onPress={() => toggleTag(item.nome, type)}
                 >
                   <Text 
                     style={{ fontFamily: 'Montserrat_500Medium', fontSize: 12 }}
-                    className={`text-center font-semibold ${isSelected ? (type === 'experiencias' ? 'text-dark-yellow' : 'text-dark-orange') : 'text-gray-600'}`}>
-                    {type === 'experiencias' ? item.texto : item.nome}
+                    className={`text-center font-semibold ${isSelected ? 'text-dark-orange' : 'text-gray-600'}`}>
+                    {item.nome}
                   </Text>
                 </Pressable>
               );
@@ -318,26 +321,38 @@ export default function Cadastro() {
   };
 
   useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/users/dadosForm`);
-                
-                setExperiencias(response.data.experiencias);
-                setConvenios(response.data.convenios);
+      const fetchData = async () => {
+          try {
+              const condicoesRef = collection(db, "condicoes");
+              const conveniosRef = collection(db, "convenios");
 
-            } catch (error) {
-                console.error("Erro ao buscar dados do servidor:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+              const [condicoesSnapshot, conveniosSnapshot] = await Promise.all([
+                  getDocs(condicoesRef),
+                  getDocs(conveniosRef)
+              ]);
 
-        fetchData();
-    }, []);
+            const listaCondicoes = condicoesSnapshot.docs.map(doc => ({
+                id: doc.id,           
+                nome: doc.data().nome 
+            }));
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#FFA500" style={{ flex: 1 }} />;
-  }
+            const listaConvenios = conveniosSnapshot.docs.map(doc => ({
+                id: doc.id,
+                nome: doc.data().nome
+            }));
+
+              setCondicoes(listaCondicoes);
+              setConvenios(listaConvenios);
+
+          } catch (error) {
+              console.error("Erro ao buscar dados:", error);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchData();
+  }, []);
 
   const radioOptions = [
   { value: -3, display: '3' },
@@ -355,150 +370,147 @@ export default function Cadastro() {
     setterVetorRespostas(novasRespostas);
   };
 
-  // //IMAGES
-  // const [images, setImages] = useState([]);
-
-  // //Function to pick the images from the phone
-  // const pickImages = async () => {
-  //   console.log('Opening image picker...');
-  //   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //   if (status !== 'granted') {
-  //     Alert.alert('Please give us permission to see your gallery.');
-  //     return;
-  //   }
-
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //     allowsMultipleSelection: true,
-  //   });
-
-  //   console.log('Image picker result:', result);
-
-  //   if (!result.canceled) {
-  //     const selectedImages = result.assets.map(asset => asset.uri);
-  //     setImages(selectedImages);
-  //     console.log('Selected images URIs:', selectedImages);
-  //   }
-  // };
-
-	// const uploadImages = async (images, storageRef) => {
-	// 	try {
-	// 		if (!images || images.length === 0) {
-	// 			console.log('Nenhuma imagem selecionada.');
-	// 			return [];
-	// 		}
-
-	// 		const downloadURLs = await Promise.all(
-	// 			images.map(async (imageUri) => {
-	// 				try {
-	// 					const originalFilename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
-
-	// 					const uniqueFilename = `${Date.now()}-${originalFilename}`;
-
-	// 					const fileRef = ref(storageRef, `images/${uniqueFilename}`);
-						
-	// 					const response = await fetch(imageUri);
-	// 					const blob = await response.blob();
-						
-	// 					const snapshot = await uploadBytes(fileRef, blob);
-						
-	// 					const downloadURL = await getDownloadURL(snapshot.ref);
-						
-	// 					return downloadURL;
-
-	// 				} catch (error) {
-	// 					console.error('Erro ao fazer upload de uma imagem específica:', error);
-	// 					return null; 
-	// 				}
-	// 			})
-	// 		);
-
-	// 		return downloadURLs.filter(url => url !== null);
-
-	// 	} catch (error) {
-	// 		console.error('Erro geral no processo de upload de imagens:', error);
-	// 		throw error;
-	// 	}
-	// };
-
-const handleSignup = async () => {
-  const camposObrigatoriosComuns = {
-      email, nome, senha, telefone, logradouro, numeroEndereco, bairro, cidade, UF, CEP
-  };
-  const testesObrigatorios = { pontTesteA, pontTesteB, pontTesteC, pontTesteD };
-
-  let camposObrigatorios = { ...camposObrigatoriosComuns };
-  if (tipoUsuario === 'especialista') {
-      camposObrigatorios = {
-          ...camposObrigatorios,
-          especialidade, conselho, conselhoNmro, precoConsulta, duracaoConsulta,
-          expedienteInicio, expedienteFim,
-          experienciasSelecionadas,
-          conveniosSelecionados
-      };
-  }
-
-  let camposFaltando = false;
-  for (const [key, value] of Object.entries(camposObrigatorios)) {
-      if (value === '' || (Array.isArray(value) && value.length === 0)) {
-          console.log(`Campo faltando: ${key}`);
-          camposFaltando = true;
-          break;
-      }
-  }
-
-  if (!camposFaltando) {
-      for (const [key, value] of Object.entries(testesObrigatorios)) {
-          if (!Array.isArray(value) || value.some(item => item === null)) {
-              console.log(`Teste incompleto: ${key}`);
-              camposFaltando = true;
-              break;
-          }
-      }
-  }
-
-  if (camposFaltando) {
-      Alert.alert('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios e responda a todos os testes antes de cadastrar.');
-      return;
-  }
-
-  const cadastroData = {
-      dadosPessoais: { tipoUsuario, email, nome, senha, telefone, responsavel: tipoUsuario === 'paciente' ? responsavel : undefined },
-      endereco: { logradouro, numero: numeroEndereco, bairro, cidade, uf: UF, cep: CEP },
-      testes: { testeA: pontTesteA, testeB: pontTesteB, testeC: pontTesteC, testeD: pontTesteD }
+  const handleWeekDay = (weekday, selected) => {
+    if (selected) {
+      setDiasDeTrabalho(diasAnteriores => 
+        [...diasAnteriores, weekday]
+      );
+    } else {
+      setDiasDeTrabalho(diasAnteriores =>
+        diasAnteriores.filter(dia => dia !== weekday)
+      );
+    }
   };
 
-  if (tipoUsuario === 'especialista') {
-      const horaInicioFormatada = formatDateToTimeString(expedienteInicio);
-      const horaFimFormatada = formatDateToTimeString(expedienteFim);
+// const handleSignup = async () => {
+//   const camposObrigatoriosComuns = {
+//       email, nome, senha, telefone, logradouro, numeroEndereco, bairro, cidade, UF, CEP
+//   };
+//   const testesObrigatorios = { pontTesteA, pontTesteB, pontTesteC, pontTesteD };
 
-      if (horaInicioFormatada === null || horaFimFormatada === null) {
-          Alert.alert("Erro de Formato", "Horário de expediente inválido.");
-          return; 
-      }
+//   let camposObrigatorios = { ...camposObrigatoriosComuns };
+//   if (tipoUsuario === 'especialista') {
+//       camposObrigatorios = {
+//           ...camposObrigatorios,
+//           tipo, conselho, conselhoNmro
+//       };
+//   }
 
-      cadastroData.dadosEspecialista = {
-          especialidade, conselho, numeroConselho: conselhoNmro, descricao,
-          precoConsulta, duracaoConsulta,
-          expedienteInicio: horaInicioFormatada,
-          expedienteFim: horaFimFormatada,
-      };
-      cadastroData.selecoes = {
-          experiencias: experienciasSelecionadas,
-          convenios: conveniosSelecionados,
-      };
-  }
+//   let camposFaltando = false;
+//   for (const [key, value] of Object.entries(camposObrigatorios)) {
+//       if (value === '' || (Array.isArray(value) && value.length === 0)) {
+//           console.log(`Campo faltando: ${key}`);
+//           camposFaltando = true;
+//           break;
+//       }
+//   }
 
-  try {
-    const response = await axios.post(`${API_URL}/users/cadastrar`, cadastroData);
-    Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao cadastrar:', error);
-    Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro. Tente novamente.');
-  }
-};
+//   if (!camposFaltando) {
+//       for (const [key, value] of Object.entries(testesObrigatorios)) {
+//           if (!Array.isArray(value) || value.some(item => item === null)) {
+//               console.log(`Teste incompleto: ${key}`);
+//               camposFaltando = true;
+//               break;
+//           }
+//       }
+//   }
+
+//   if (camposFaltando) {
+//       Alert.alert('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios e responda a todos os testes antes de cadastrar.');
+//       return;
+//   }
+
+//   const selecoes = {
+//     condicoes: condicoesSelecionadas,
+//   };
+
+//   function somador(total, num) {
+//       return total + num;
+//   }
+
+//   let dadosUsuario = {
+//       email,
+//       nome,
+//       telefone,
+//       cor_img_perfil: randomColor({ luminosity: 'light', hue: 'random', format: 'hex' }),
+//       ativo: true,
+//       cidade,
+//       tipo_usuario: tipoUsuario,
+//       pont_test_a: pontTesteA.map(valor => parseInt(valor, 10)).reduce(somador),
+//       pont_test_b: pontTesteB.map(valor => parseInt(valor, 10)).reduce(somador),
+//       pont_test_c: pontTesteC.map(valor => parseInt(valor, 10)).reduce(somador),
+//       pont_test_d: pontTesteD.map(valor => parseInt(valor, 10)).reduce(somador),
+//   };
+
+//   let enderecoPaciente = null;
+
+//   if (tipoUsuario === 'paciente') {
+//       dadosUsuario.is_responsavel = responsavel;
+//       dadosUsuario.condicoes_mentais = condicoesSelecionadas;
+
+//       enderecoPaciente = {
+//         logradouro: logradouro,
+//         numero: numeroEndereco,
+//         bairro: bairro,
+//         cidade: cidade,
+//         uf: UF,
+//         cep: CEP
+//       }
+//   }
+
+//   else if (tipoUsuario === 'especialista') {
+//       const horaInicioFormatada = formatDateToTimeString(expedienteInicio);
+//       const horaFimFormatada = formatDateToTimeString(expedienteFim);
+
+//       if (horaInicioFormatada === null || horaFimFormatada === null) {
+//           Alert.alert("Erro de Formato", "Horário de expediente inválido.");
+//           return; 
+//       }
+
+//       dadosUsuario.area = tipo;
+//       dadosUsuario.conselho = conselho;
+//       dadosUsuario.conselho_nmro = conselhoNmro;
+//       dadosUsuario.descricao = descricao;
+//       dadosUsuario.preco_consulta = parseFloat(precoConsulta);
+//       dadosUsuario.duracao_consulta = parseInt(duracaoConsulta);
+//       dadosUsuario.dias_trabalho = diasDeTrabalho;
+//       dadosUsuario.expediente_inicio = horaInicioFormatada;
+//       dadosUsuario.expediente_fim = horaFimFormatada;
+//       dadosUsuario.convenios = conveniosSelecionados;
+//       dadosUsuario.especialidades = condicoesSelecionadas; 
+//       dadosUsuario.consultorio = {
+//           logradouro: logradouro,
+//           numero: numeroEndereco,
+//           bairro: bairro,
+//           cidade: cidade,
+//           uf: UF,
+//           cep: CEP
+//       };
+//   }
+
+//   try {
+//     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+//     const user = userCredential.user;
+    
+//     dadosUsuario.id = user.uid;
+
+//     await setDoc(doc(db, "usuarios", user.uid), dadosUsuario);
+
+//     if (tipoUsuario === 'paciente' && enderecoPaciente) {
+//         await setDoc(doc(db, "usuarios", user.uid, "privado", "endereco"), enderecoPaciente);
+//     }
+
+//     Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+
+//   } catch (error) {
+//     console.error('Erro ao cadastrar:', error);
+//     let mensagem = 'Ocorreu um erro ao realizar o cadastro.';
+//     if (error.code === 'auth/email-already-in-use') mensagem = 'Este e-mail já está cadastrado.';
+//     if (error.code === 'auth/weak-password') mensagem = 'A senha deve ter pelo menos 6 caracteres.';
+//     if (error.code === 'auth/invalid-email') mensagemErro = 'O formato do email é inválido.';
+//     Alert.alert('Erro', mensagem);
+//   }
+// };
               
 
   return (
@@ -529,7 +541,7 @@ const handleSignup = async () => {
       </ImageBackground>
 
       {/* Step 1 */}
-       {step === 1 && (
+       {step === 1 && tipoEdicao === "dados_pessoais" && (
           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             {/* Next Button */}
@@ -642,7 +654,7 @@ const handleSignup = async () => {
         )}
 
       {/* Step 2 */}
-      {step === 2 && (
+      {step === 2 && tipoEdicao === "dados_pessoais" && (
             <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
               {/* Back Button */}
               <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -726,7 +738,7 @@ const handleSignup = async () => {
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
                   className= "mb-3">Estado</Text>
                   <Dropdown
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
+                    className="border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
                     onValueChange={setUF}
                     items={listaDeUFs}
                     placeholder={placeholderEstado}
@@ -755,7 +767,7 @@ const handleSignup = async () => {
       )}
 
       {/* Step 3 */}
-      {step === 3 && tipoUsuario === 'especialista' && (
+      {step === 1 && tipoEdicao === "dados_profissionais" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -787,11 +799,11 @@ const handleSignup = async () => {
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
                   className= "mb-3">Área de Atuação</Text>
                   <Dropdown
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                    onValueChange={setEspecialidade}
-                    items={listaDeEspecialidades}
-                    placeholder={placeholderEspecialidade}
-                    value={especialidade}
+                    className="border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
+                    onValueChange={setTipo}
+                    items={listaDeTipos}
+                    placeholder={placeholderTipo}
+                    value={tipo}
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
             </View>
@@ -839,7 +851,7 @@ const handleSignup = async () => {
             </View>
         )}
 
-        {step === 4 && tipoUsuario === 'especialista' && (
+        {step === 2 && tipoEdicao === "dados_profissionais" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -896,6 +908,16 @@ const handleSignup = async () => {
               />
             </View>
 
+            {/* Dias de Trabalho */}
+            <View className="mb-6">
+              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
+                className= "mb-3">Dias de Trabalho</Text>
+                <WeekdaySelector 
+                  onPress={handleWeekDay}
+                  bgColor="#ff7900"
+                />
+            </View>
+
             {/* Início e Fim do Expediente */}
             <View className="mb-6">
               <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
@@ -912,7 +934,7 @@ const handleSignup = async () => {
         )}
 
         {/* Step 5 */}
-      {step === 5 && tipoUsuario === 'especialista' && (
+      {step === 3 && tipoEdicao === "dados_profissionais" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -941,26 +963,26 @@ const handleSignup = async () => {
 
              {/* Seletores */}
             <View>
-              {/* Seletor de Experiencias */}
-              <TouchableOpacity onPress={() => toggleSection('experiencias')} className="flex-row justify-between items-center mx-8">
+              {/* Seletor de condições */}
+              <TouchableOpacity onPress={() => toggleSection('condicoes')} className="flex-row justify-between items-center mx-8">
                 <View className="flex-row mb-5">
                     <View className="ml-3 mt-1">
                       <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(12)}}
-                      className="-mb-1 ">Escolha os tópicos que você tem</Text>
+                      className="-mb-1 ">Escolha as condições mentais em que você é</Text>
 
                       <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                      className="mt-1">Experiência</Text>
+                      className="mt-1">Especialista</Text>
                     </View>
                 </View>
             
                 <Image className="-mt-4"
-                  source={visibleSections.experiencias ? require('../assets/icons/up.png') : require('../assets/icons/down.png')}
+                  source={visibleSections.condicoes ? require('../assets/icons/up.png') : require('../assets/icons/down.png')}
                   style={{ width: 13, height: 13 }} 
                 />
               </TouchableOpacity>
 
               <View className="px-5">
-                {renderTags(experiencias, 'experiencias')}
+                {renderTags(condicoes, 'condicoes')}
               </View>
 
               {/* Line */}
@@ -993,8 +1015,65 @@ const handleSignup = async () => {
             </View>
         )}
 
+        {/* Step 5 */}
+      {step === 1 && tipoEdicao === "condicoes" && (
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
+
+            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                {/* Back Button */}
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Next button */}
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-1 bg-orange rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+             {/* Seletores */}
+            <View>
+              {/* Seletor de condições */}
+              <TouchableOpacity onPress={() => toggleSection('condicoes')} className="flex-row justify-between items-center mx-8">
+                <View className="flex-row mb-5">
+                    <View className="ml-3 mt-1">
+                      <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(12)}}
+                      className="-mb-1 ">Você possui diagnóstico ou acredita ter alguma dessas</Text>
+
+                      <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
+                      className="mt-1">Condições mentais?</Text>
+                    </View>
+                </View>
+            
+                <Image className="-mt-4"
+                  source={visibleSections.condicoes ? require('../assets/icons/up.png') : require('../assets/icons/down.png')}
+                  style={{ width: 13, height: 13 }} 
+                />
+              </TouchableOpacity>
+
+              <View className="px-5">
+                {renderTags(condicoes, 'condicoes')}
+              </View>
+
+              </View>
+
+            </View>
+        )}
+
         {/* Step 6 */}
-      {((step === 3 && tipoUsuario === 'paciente') || (step === 6 && tipoUsuario === 'especialista')) && (
+      {step === 1 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -1192,7 +1271,7 @@ const handleSignup = async () => {
         )}
 
         {/* Step 7 */}
-      {((step === 4 && tipoUsuario === 'paciente') || (step === 7 && tipoUsuario === 'especialista')) && (
+      {step === 2 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -1390,7 +1469,7 @@ const handleSignup = async () => {
         )}
 
         {/* Step 8 */}
-      {((step === 5 && tipoUsuario === 'paciente') || (step === 8 && tipoUsuario === 'especialista')) && (
+      {step === 3 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
@@ -1428,7 +1507,7 @@ const handleSignup = async () => {
               <Text 
                 style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-left px-2">
-                {tipoUsuario === 'paciente' ? 'Focasse no passado da minha vida' : 'Focar no passado das vidas dos pacientes'}
+                {tipoUsuario === 'paciente' ? 'Focasse na minha vida no passado' : 'Focar na vida dos pacientes no passado'}
               </Text>
 
               {/* Texto do Centro */}
@@ -1440,7 +1519,7 @@ const handleSignup = async () => {
               {/* Texto da Direita */}
               <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-right px-2">
-                {tipoUsuario === 'paciente' ? 'Focasse no presente da minha vida' : 'Focar no presente das vidas dos pacientes'}
+                {tipoUsuario === 'paciente' ? 'Focasse na minha vida no presente' : 'Focar na vida dos pacientes no presente'}
               </Text>
             </View> 
 
@@ -1522,7 +1601,7 @@ const handleSignup = async () => {
         )}
         
         {/* Step 9 */}
-      {((step === 6 && tipoUsuario === 'paciente') || (step === 9 && tipoUsuario === 'especialista')) && (
+      {step === 4 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">

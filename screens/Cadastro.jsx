@@ -11,8 +11,6 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebaseConfig';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 export default function Cadastro() {
   // const navigation = useNavigation();
 

@@ -108,7 +108,7 @@ export default function Perfil() {
       <View>
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          // onPress={()=> navigation.navigate('Edicao', { tipo: 'dados_pessoais'})}
+          onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'dados_pessoais'})}
         >
           
           <View className="flex-row">
@@ -128,7 +128,7 @@ export default function Perfil() {
 
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          // onPress={()=> navigation.navigate('Edicao', { tipo: 'dados_profissionais'})}
+          onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'dados_profissionais'})}
         >
 
           <View className="flex-row">
@@ -148,7 +148,7 @@ export default function Perfil() {
 
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          // onPress={()=> navigation.navigate('refazer-teste')}
+          onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'refazer_teste'})}
         >
           
           <View className="flex-row">

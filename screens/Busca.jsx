@@ -1,72 +1,138 @@
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StatusBar, PixelRatio, ImageBackground, Image } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Animated, { FlipInEasyX } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { Dropdown } from '../components/Dropdown';
-// import { useNavigation } from '@react-navigation/native'
 import { AreaDeAtuacaoCard } from '../components/AreaDeAtuacaoCard';
 import UsuarioCard from '../components/UsuarioCard'
-import {UsuarioCardCompleto} from '../components/UsuarioCardCompleto'
+import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto'
+import { db } from '../config/firebaseConfig';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
+import { AuthContext } from '../context/AuthContext';
+import { buscarEspecialistasPorEstado } from '../components/buscarEspecialistasPorEstado';
 // import { signOut } from 'firebase/auth'
 // import { auth } from '../config/firebaseConfig'
 
 export default function Busca() {
+  const { loading, userProfile } = useContext(AuthContext);
+    
+  if (loading || !userProfile) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size="large" color="#ffbf00" />
+      </View>
+    );
+  }
 
-  // const navigation = useNavigation()
-
-  // const user = auth.currentUser;
-  // const displayName = user?.displayName || 'Guest';
-
-  //Function to log out
-  // const handleLogout = async ()=> {
-  //   await signOut(auth);
-  //   navigation.navigate('Welcome')
-  // }
   const fontScale = PixelRatio.getFontScale();
   const getFontSize = size => size / fontScale;
 
-  const [modalVisivel, setModalVisivel] = useState(false);
-  
-  const abrirModal = () => setModalVisivel(true);
-  const fecharModal = () => setModalVisivel(false);
+  const [listaEspecialistas, setListaEspecialistas] = useState([]);
+  const [listaCidades, setListaCidades] = useState([]);
+  const [listaCondicoes, setListaCondicoes] = useState([]);
+  const [listaConvenios, setListaConvenios] = useState([]);
 
   const [areaDeAtuacao, setAreaDeAtuacao] = useState('psicologa');
   const [nome, setNome] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [preco, setPreco] = useState('');
-  const [condicao, setCondicao] = useState('');
-  const [convenio, setConvenio] = useState('');
+  const [cidade, setCidade] = useState(null);
+  const [preco, setPreco] = useState(null);
+  const [condicao, setCondicao] = useState(null);
+  const [convenio, setConvenio] = useState(null);
 
-  const listaCidades = [
-  { "label": "São José do Norte", "value": "São José do Norte" },
-  { "label": "Porto Alegre", "value": "Porto Alegre" },
-  { "label": "Caxias do Sul", "value": "Caxias do Sul" },
-  { "label": "Pelotas", "value": "Pelotas" },
-  { "label": "Santa Maria", "value": "Santa Maria" },
-  { "label": "Canoas", "value": "Canoas" },
-  { "label": "Novo Hamburgo", "value": "Novo Hamburgo" },
-  { "label": "São Leopoldo", "value": "São Leopoldo" },
-  { "label": "Rio Grande", "value": "Rio Grande" },
-  { "label": "Passo Fundo", "value": "Passo Fundo" },
-  { "label": "Gramado", "value": "Gramado" },
-  { "label": "Canela", "value": "Canela" },
-  { "label": "Uruguaiana", "value": "Uruguaiana" },
-  { "label": "Bagé", "value": "Bagé" },
-  { "label": "Santa Cruz do Sul", "value": "Santa Cruz do Sul" },
-  { "label": "Bento Gonçalves", "value": "Bento Gonçalves" },
-  { "label": "Lajeado", "value": "Lajeado" },
-  { "label": "Erechim", "value": "Erechim" },
-  { "label": "Guaíba", "value": "Guaíba" },
-  { "label": "Viamão", "value": "Viamão" },
-  { "label": "Gravataí", "value": "Gravataí" },
-  { "label": "Cachoeirinha", "value": "Cachoeirinha" },
-  { "label": "Sapucaia do Sul", "value": "Sapucaia do Sul" },
-  { "label": "Santo Ângelo", "value": "Santo Ângelo" },
-  { "label": "Ijuí", "value": "Ijuí" },
-  { "label": "Torres", "value": "Torres" },
-  { "label": "Alegrete", "value": "Alegrete" }
-];
+  useEffect(() => {
+    const carregarDadosIniciais = async () => {
+      if (!userProfile) return;
+
+      try {
+        const condicoesRef = collection(db, "condicoes");
+        const conveniosRef = collection(db, "convenios");
+        
+        const [condicoesSnap, conveniosSnap] = await Promise.all([
+            getDocs(condicoesRef),
+            getDocs(conveniosRef)
+        ]);
+
+        setListaCondicoes(condicoesSnap.docs.map(d => ({ label: d.data().nome, value: d.data().nome })));
+        setListaConvenios(conveniosSnap.docs.map(d => ({ label: d.data().nome, value: d.data().nome })));
+
+        let ufUsuario = '';
+
+        if (userProfile.tipo_usuario === 'paciente') {
+             const docRef = doc(db, "usuarios", userProfile.id, "privado", "endereco_principal");
+             const docSnap = await getDoc(docRef);
+             if (docSnap.exists()) {
+                 ufUsuario = docSnap.data().uf;
+             }
+        } else {
+             Alert.alert(
+                "Acesso Restrito", 
+                "Esta funcionalidade de busca filtrada é exclusiva para pacientes.",
+                [
+                  { 
+                      text: "Voltar", 
+                      onPress: () => navigation.goBack()
+                  }
+                ]
+             );
+             return;
+        }
+
+        if (ufUsuario) {
+            const resultado = await buscarEspecialistasPorEstado(ufUsuario);
+            const especialistas = resultado.dadosEspecialistas;
+            
+            setListaEspecialistas(especialistas);
+
+            const cidadesUnicas = new Set();
+            especialistas.forEach(esp => {
+                if (esp.consultorio && esp.consultorio.cidade) {
+                    cidadesUnicas.add(esp.consultorio.cidade);
+                }
+            });
+            
+            const cidadesFormatadas = Array.from(cidadesUnicas).map(cidadeNome => ({
+                label: cidadeNome,
+                value: cidadeNome
+            }));
+            
+            setListaCidades(cidadesFormatadas);
+        }
+
+      } catch (error) {
+        console.error("Erro ao carregar dados da busca:", error);
+      }
+    };
+
+    carregarDadosIniciais();
+  }, [userProfile]);
+
+  const especialistasFiltrados = listaEspecialistas.filter(esp => {
+      if (esp.area !== areaDeAtuacao) return false;
+
+      if (nome && !esp.nome.toLowerCase().includes(nome.toLowerCase())) return false;
+
+      if (cidade && esp.consultorio?.cidade !== cidade) return false;
+
+      if (convenio && (!esp.convenios || !esp.convenios.includes(convenio))) return false;
+
+      if (condicao && (!esp.especialidades || !esp.especialidades.includes(condicao))) return false;
+
+      if (preco) {
+          const valor = parseFloat(esp.preco_consulta);
+
+          if (preco === '100') {
+              if (valor > 100) return false;
+          } else if (preco === '600') {
+              if (valor < 600) return false;
+          } else if (preco.includes(',')) {
+              const [min, max] = preco.split(',').map(Number);
+              if (valor < min || valor > max) return false;
+          }
+      }
+
+      return true;
+  });
 
   const placeholderCidade = {
     label: 'Selecione uma cidade',
@@ -74,11 +140,11 @@ export default function Busca() {
   };
 
   const listaFaixasDePreco = [
-    { label: 'Até R$100', value: '-100' },
-    { label: 'Entre R$100 e R$250', value: '100+,250-' },
-    { label: 'Entre R$250 e R$400', value: '250+,400-' },
-    { label: 'Entre R$400 e R$600', value: '400+,600-' },
-    { label: 'Mais de R$600', value: '600+' }
+    { label: 'Até R$100', value: '100' },
+    { label: 'Entre R$100 e R$250', value: '100,250' },
+    { label: 'Entre R$250 e R$400', value: '250,400' },
+    { label: 'Entre R$400 e R$600', value: '400,600' },
+    { label: 'Mais de R$600', value: '600' }
   ];
 
   const placeholderFaixaDePreco = {
@@ -86,35 +152,23 @@ export default function Busca() {
     value: null,
   };
 
-  const listaCondicoes = [
-    { label: 'TEA', value: 1 },
-    { label: 'TDAH', value: 2 },
-    { label: 'Depressão', value: 3 },
-    { label: 'Ansiedade', value: 4 },
-    { label: 'Deficiência Intelectual', value: 5 },
-    { label: 'Distúrbios do Sono', value: 6 }
-  ];
-
   const placeholderCondicao = {
     label: 'Selecione uma condição mental',
     value: null,
   };
-
-  const listaDeConvenios = [
-    { label: 'Amil', value: 1 },
-    { label: 'Bradesco Saúde', value: 2 },
-    { label: 'Unimed', value: 3 }
-  ];
 
   const placeholderConvenio = {
     label: 'Selecione um convênio',
     value: null,
   };
 
-  const handleDropdownChange = (selectedValue) => {
-    if (selectedValue !== null && selectedValue !== undefined) {
-      onValueChange(selectedValue);
-    }
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+  
+  const abrirModal = (usuario) => {
+    setUsuarioSelecionado(usuario);
+  };
+  const fecharModal = () => {
+    setUsuarioSelecionado(null);
   };
 
   return (
@@ -217,26 +271,34 @@ export default function Busca() {
         <Dropdown
           className="w-[80%] border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
           onValueChange={setConvenio}
-          items={listaDeConvenios}
+          items={listaConvenios}
           placeholder={placeholderConvenio}
           value={convenio}
         />
       </View>
 
       <View className="mb-28">
-        <UsuarioCard 
-          onVerMaisPress={abrirModal}
-        />
-        <UsuarioCard 
-          onVerMaisPress={abrirModal}
-        />
+        {especialistasFiltrados.length > 0 ? (
+            especialistasFiltrados.map(especialista => (
+              <UsuarioCard 
+                  key={especialista.id}
+                  dadosPerfil={especialista}
+                  onVerMaisPress={() => abrirModal(especialista)}
+              />
+            ))
+          ) : (
+            <Text className="text-center text-gray-500 mt-5 font-montRegular">
+              Nenhum especialista encontrado com esses filtros.
+            </Text>
+          )}
       </View>
     
     </View>
 
     <UsuarioCardCompleto 
-      modalVisible={modalVisivel}
+      modalVisible={usuarioSelecionado !== null} 
       onCloseModal={fecharModal}
+      dadosPerfil={usuarioSelecionado} 
     />
 
   </ScrollView>

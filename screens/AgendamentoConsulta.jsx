@@ -9,8 +9,6 @@ import { AuthContext } from '../context/AuthContext';
 import { db } from './../config/firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 export default function AgendamentoConsulta({ route }) {
   const navigation = useNavigation();
 
