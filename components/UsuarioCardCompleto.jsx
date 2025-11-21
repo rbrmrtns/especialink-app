@@ -22,7 +22,7 @@ const Conteudo = ({ dadosPerfil }) => {
 
   const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const diasTrabalhoFinal = dadosPerfil.dias_trabalho && dadosPerfil.dias_trabalho.length > 0
-    ? dadosPerfil.dias_trabalho.map(nmro => diasSemana[nmro]).join(', ') 
+    ? dadosPerfil.dias_trabalho.sort((a, b) => a - b).map(nmro => diasSemana[nmro]).join(', ') 
     : 'Sob consulta';
 
   const horasTrabalho = dadosPerfil.expediente_inicio && dadosPerfil.expediente_fim ? 
@@ -90,7 +90,7 @@ const Conteudo = ({ dadosPerfil }) => {
       <>
     <View>
       <Text className="text-lg font-montExtrabold color-dark-orange mb-2">
-        {dadosPerfil.tipo_usuario == 'especialista' ? 'Especialidades' : 'Condições de Saúde Mental'}
+        {dadosPerfil.tipo_usuario == 'especialista' ? 'Especialidade(s)' : 'Condição(ões) de Saúde Mental'}
       </Text>
       <View className="flex-row flex-wrap gap-2 justify-center">
         {condicoes && condicoes.map((conds) => (

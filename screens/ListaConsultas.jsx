@@ -71,10 +71,6 @@ export default function ListaConsultas() {
 
       } catch (error) {
         console.error("Erro ao buscar consultas:", error);
-        
-        if (error.message.includes("index")) {
-            console.log("⚠️ VOCÊ PRECISA CRIAR UM ÍNDICE NO FIREBASE. OLHE O LINK ACIMA.");
-        }
       }
     };
 
@@ -123,19 +119,26 @@ export default function ListaConsultas() {
 
         <LinearGradient
           colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']} 
-          className="absolute bottom-0 left-0 right-0 h-24"
+          className="absolute bottom-0 left-0 right-0 h-18"
         />
 
       </ImageBackground>
 
       <View className="mb-28">
-        {consultas.map((consulta) => (
-          <ConsultaCard 
-            key={consulta.id}
-            dadosConsulta={consulta}
-            onDelete={() => excluirConsulta(consulta.id)}
-          />
-        ))}
+        {consultas.length > 0 ? (
+          consultas.map((consulta) => (
+            <ConsultaCard 
+              key={consulta.id}
+              dadosConsulta={consulta}
+              onDelete={() => excluirConsulta(consulta.id)}
+            />
+          ))
+        ) : (
+          <Text className="text-center mt-10 text-gray-500 font-montRegular mx-5">
+            Você ainda não agendou consultas.
+          </Text>
+
+        )}
       </View>
     
     </View>

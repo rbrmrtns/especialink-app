@@ -1,4 +1,4 @@
-import { ActivityIndicator, View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
+import { ActivityIndicator, Alert, View, Text, Pressable, ScrollView, StatusBar, ImageBackground, Image } from 'react-native'
 import React, { useContext } from 'react'
 import Animated, { FlipInEasyX } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,7 @@ import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto'
 import { signOut } from 'firebase/auth'
 import { AuthContext } from '../context/AuthContext';
 import { auth } from '../config/firebaseConfig';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Perfil() {
   const navigation = useNavigation()
@@ -21,12 +22,25 @@ export default function Perfil() {
     );
   }
 
-  const handleLogout = async () => {
+  const realizarLogout = async () => {
     try {
       await signOut(auth);
     } catch (error) {
       console.error("Erro ao sair:", error);
+      Alert.alert("Erro", "Não foi possível sair da conta.");
     }
+  };
+
+  const confirmarSaida = () => {
+    Alert.alert(
+      "Atenção",
+      "Deseja mesmo sair da sua conta?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Sair", onPress: realizarLogout, style: "destructive" }
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -43,7 +57,7 @@ export default function Perfil() {
             <Text className="mb-1" style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: 25 }}>Perfil</Text>
             
             <Pressable 
-            onPress={handleLogout}
+            onPress={confirmarSaida}
             >
             <View className="flex-row mt-1.5">
               <Image className="w-4 h-4 mr-1"  style={{ tintColor: '#63254E' }}
@@ -126,25 +140,42 @@ export default function Perfil() {
 
         </Pressable>
 
-        {/* Button */}
-        <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
-          onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'dados_profissionais'})}
-        >
-
-          <View className="flex-row">
-            <Image className="w-8 h-8 mr-4" 
-                                source={require('../assets/icons/edit-professional-info.png')} />
-
-            <Text style={{ fontFamily: 'Montserrat_500Medium' }}
-            className="mt-1">
-              Alterar Dados Profissionais
-            </Text>
-          </View>
-
-          <Image className="w-8 h-8" 
-                                source={require('../assets/icons/next.png')} />
-
-        </Pressable>
+        {(() => {
+          if (userProfile.tipo_usuario === 'especialista') {
+            return <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
+                      onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'dados_profissionais'})}
+                    >
+                      <View className="flex-row">
+                        <Image className="w-8 h-8 mr-4" 
+                                            source={require('../assets/icons/edit-professional-info.png')} />
+                        <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+                        className="mt-1">
+                          Alterar Dados Profissionais
+                        </Text>
+                      </View>
+                      <Image className="w-8 h-8" 
+                                            source={require('../assets/icons/next.png')} />
+                    </Pressable>;
+          } else if (userProfile.tipo_usuario === 'paciente') {
+            return <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
+                      onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'condicoes'})}
+                    >
+                      <View className="flex-row">
+                        <Icon 
+                            name="brain" 
+                            size={32} 
+                            style={{ marginRight: 16 }} // Equivalente ao mr-4
+                        />
+                        <Text style={{ fontFamily: 'Montserrat_500Medium' }}
+                        className="mt-1">
+                          Alterar Condições Mentais
+                        </Text>
+                      </View>
+                      <Image className="w-8 h-8" 
+                                            source={require('../assets/icons/next.png')} />
+                    </Pressable>;
+          }
+        })()}
 
         {/* Button */}
         <Pressable className="bg-white border border-gray-100 mx-8 py-4 px-5 shadow-sm rounded-xl flex-row justify-between mt-5"
@@ -171,7 +202,7 @@ export default function Perfil() {
 
       <View className="h-12" />
 
-      <View className="flex justify-center items-center mt-10">
+      <View className="flex justify-center items-center mt-10 mb-24">
         <Image className="w-24 h-10 mb-5" 
                               source={require('../assets/logo.png')} />
 

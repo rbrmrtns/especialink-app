@@ -105,13 +105,19 @@ return (
               animationMode={'flyTo'}
               animationDuration={0}
             />
+              <Mapbox.PointAnnotation
+                key={userProfile.id}
+                id={userProfile.id}
+                coordinate={[parseFloat(coordenadasUser.longitude), parseFloat(coordenadasUser.latitude)]}
+              >
+                <Mapbox.Callout title='Você' contentStyle={{ borderRadius: 8, padding: 8 }} />
+              </Mapbox.PointAnnotation>
             {listaOrdenada.map(especialista => (
               <Mapbox.PointAnnotation
                 key={especialista.id}
                 id={especialista.id}
                 coordinate={[parseFloat(especialista.coords.longitude), parseFloat(especialista.coords.latitude)]}
               >
-
                 <Mapbox.Callout title={`Consultório de ${especialista.nome}`} contentStyle={{ borderRadius: 8, padding: 8 }} />
               </Mapbox.PointAnnotation>
             ))}
@@ -141,7 +147,7 @@ return (
 
         </View>
 
-        <View className="bg-white rounded-t-[35px] py-5 -mt-5">
+        <View className="bg-white rounded-t-[35px] py-5 -mt-5 min-h-screen">
 
           <Text 
             className="text-lg text-gray-800 text-center mx-5 mb-4" 
@@ -151,13 +157,19 @@ return (
           </Text>
 
           <View className="mb-28">
-            {listaOrdenada.map((especialista) => (
+            {listaOrdenada.length > 0 ? (
+              listaOrdenada.map((especialista) => (
               <UsuarioCard 
                 key={especialista.id}
                 dadosPerfil={especialista}
                 onVerMaisPress={() => abrirModal(especialista)} 
               />
-            ))}
+            ))
+          ) : (
+              <Text className="text-center mt-10 text-gray-500 font-montRegular mx-5">
+                Ainda não existem especialistas compatíveis com você na plataforma.
+              </Text>
+            )}
           </View>
           
         </View>

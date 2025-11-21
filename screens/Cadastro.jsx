@@ -10,9 +10,11 @@ var randomColor = require('randomcolor');
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebaseConfig';
+import { ArrowLeftIcon } from 'react-native-heroicons/outline';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Cadastro() {
-  // const navigation = useNavigation();
+  const navigation = useNavigation();
 
 //Responsive font size
   const fontScale = PixelRatio.getFontScale();
@@ -121,8 +123,7 @@ export default function Cadastro() {
       }
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
-      const seconds = date.getSeconds().toString().padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
+      return `${hours}:${minutes}`;
     } catch (e) {
       console.error("Erro ao formatar hora:", e);
       return null; 
@@ -161,13 +162,7 @@ export default function Cadastro() {
   };
 
   const handleDuracaoChange = (text) => {
-    const cleaned = text.replace(/\D/g, '');
-    setDuracaoConsulta(cleaned);
-    if (cleaned === '') {
-      setDuracaoDisplay('');
-    } else {
-      setDuracaoDisplay(`${cleaned} min`);
-    }
+    setDuracaoConsulta(text.replace(/\D/g, ''));
   };
 
   const [condicoes, setCondicoes] = useState([]);
@@ -365,13 +360,29 @@ export default function Cadastro() {
 
   const handleWeekDay = (weekday, selected) => {
     if (selected) {
-      setDiasDeTrabalho(diasAnteriores => 
-        [...diasAnteriores, weekday]
-      );
+      if (weekday >= 0 && weekday <= 5) {
+        setDiasDeTrabalho(diasAnteriores => 
+          [...diasAnteriores, weekday + 1]
+        );
+      } else if (weekday === 6) {
+        setDiasDeTrabalho(diasAnteriores => 
+          [...diasAnteriores, 0]
+        );
+      } else {
+        alert('Dia inválido!');
+      }
     } else {
-      setDiasDeTrabalho(diasAnteriores =>
-        diasAnteriores.filter(dia => dia !== weekday)
-      );
+      if (weekday >= 0 && weekday <= 5) {
+        setDiasDeTrabalho(diasAnteriores =>
+          diasAnteriores.filter(dia => dia !== weekday + 1)
+        );
+      } else if (weekday === 6) {
+        setDiasDeTrabalho(diasAnteriores =>
+          diasAnteriores.filter(dia => dia !== 0)
+        );
+      } else {
+        alert('Dia inválido!');
+      }
     }
   };
 
@@ -412,10 +423,6 @@ const handleSignup = async () => {
       Alert.alert('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios e responda a todos os testes antes de cadastrar.');
       return;
   }
-
-  const selecoes = {
-    condicoes: condicoesSelecionadas,
-  };
 
   function somador(total, num) {
       return total + num;
@@ -513,6 +520,13 @@ const handleSignup = async () => {
       {/* Background Image */}
       <ImageBackground source={require('./../assets/images/bg3.png')} resizeMode="cover" imageStyle= {{opacity:0.3}}>
 
+      <TouchableOpacity 
+        onPress={() => navigation.goBack()} 
+        className="absolute top-14 left-5 z-50 p-2 bg-white/40 rounded-full"
+      >
+        <ArrowLeftIcon size={24} color="black" />
+      </TouchableOpacity>
+
       {/* Fixed top bar */}
       <View className="pt-12 pb-10">
   
@@ -541,7 +555,7 @@ const handleSignup = async () => {
               <View className="flex justify-center items-end -mt-2 -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -664,7 +678,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -695,6 +709,7 @@ const handleSignup = async () => {
                     placeholder="Digite o número de sua residência"
                     value={numeroEndereco}
                     onChangeText={setNumeroEndereco}
+                    inputMode="numeric"
                     keyboardType="numeric"
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
@@ -778,7 +793,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -817,7 +832,7 @@ const handleSignup = async () => {
             {/* Conselho */}
             <View className="mb-6">
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Número do Conselho</Text>
+                  className= "mb-3">Número de Cadastro no Conselho</Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu número no conselho"
@@ -862,7 +877,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -873,11 +888,12 @@ const handleSignup = async () => {
 
               {/* Valor Consulta */}
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                className= "mb-3">Valor da Consulta</Text>
+              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}className= "mb-3">
+                Valor da Consulta
+                <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}} className= "mb-3"> (em reais)</Text>
+              </Text>
                 <TextInput
                   className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                  placeholder="Digite o valor da consulta em reais (R$)"
                   value={precoDisplay}
                   onChangeText={handlePrecoChange}
                   inputMode="numeric"
@@ -888,17 +904,26 @@ const handleSignup = async () => {
 
               {/* Duração Consulta */}
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                className= "mb-3">Duração da Consulta</Text>
+              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                Duração da Consulta
+                <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}} className= "mb-3"> (em minutos)</Text>
+              </Text>
+              <View className="flex-row items-center border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white justify-start">
                 <TextInput
-                  className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                  placeholder="Digite a duração da consulta em minutos"
-                  value={duracaoDisplay}
+                  value={duracaoConsulta}
                   onChangeText={handleDuracaoChange}
                   inputMode="numeric"
                   keyboardType="numeric"
+                  className="text-left w-6"
                   style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-              />
+                />
+
+                {duracaoConsulta ? (
+                  <Text className="text-gray-500 font-montMedium ml-1">
+                    min
+                  </Text>
+                ) : null}
+              </View>
             </View>
 
             {/* Dias de Trabalho */}
@@ -945,7 +970,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1027,7 +1052,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1084,7 +1109,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1282,7 +1307,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1480,7 +1505,7 @@ const handleSignup = async () => {
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1612,7 +1637,7 @@ const handleSignup = async () => {
                 {/* Save button */}
                 <TouchableOpacity 
                   onPress={handleSignup} 
-                  className="py-1 bg-orange rounded-full w-20">
+                  className="py-2 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="text-center text-white">
@@ -1764,7 +1789,7 @@ const handleSignup = async () => {
               <Text 
                 style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-left px-2">
-                {tipoUsuario === 'paciente' ? 'Apoiasse o meu comportamento incondicionalmente' : 'Apoiar o comportamento de pacientes incondicionalmente'}
+                {tipoUsuario === 'paciente' ? 'Apoiasse o meu comportamento incondicionalmente' : 'Apoiar o comportamento de pacientes\nincondicionalmente'}
               </Text>
 
               {/* Texto do Centro */}

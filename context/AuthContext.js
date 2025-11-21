@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { auth, db } from '../config/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [userAuth, setUserAuth] = useState(null); 
@@ -13,27 +13,38 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setUserAuth(user);
 
-      if (user) {
-        const docRef = doc(db, "usuarios", user.uid);
-        const docSnap = await getDoc(docRef);
-        
+      if (!user) {
+        setUserProfile(null);
+        setLoading(false);
+      }
+
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (userAuth) {
+      const userRef = doc(db, "usuarios", userAuth.uid);
+
+      const unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
         if (docSnap.exists()) {
           setUserProfile(docSnap.data());
         } else {
           setUserProfile(null);
         }
-      } else {
-        setUserProfile(null);
-      }
-      
-      setLoading(false);
-    });
+        setLoading(false);
+      }, (error) => {
+        console.error("Erro no listener do perfil:", error);
+        setLoading(false);
+      });
 
-    return () => unsubscribe();
-  }, []);
+      return () => unsubscribeFirestore();
+    }
+  }, [userAuth]);
 
   return (
     <AuthContext.Provider value={{ userAuth, userProfile, loading }}>

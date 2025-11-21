@@ -8,13 +8,8 @@ export const obterCoordenadasMapbox = async (endereco) => {
 
     const response = await axios.get('https://api.mapbox.com/search/geocode/v6/forward', {
       params: {
+        q: `${endereco.logradouro}, ${endereco.numero} - ${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}, ${endereco.cep}`,
         country: 'br',
-        address_number: endereco.numero,
-        street: endereco.logradouro,
-        place: endereco.cidade,
-        neighborhood: endereco.bairro,
-        region: endereco.uf,
-        postcode: endereco.cep,
         access_token: accessToken,
         limit: 1
       }

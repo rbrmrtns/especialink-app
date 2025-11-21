@@ -1,36 +1,17 @@
-// Source - https://stackoverflow.com/a
-// Posted by user1921, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-11-18, License - CC BY-SA 3.0
-
-const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Raio da Terra em km
-  const dLat = deg2rad(lat2 - lat1);
-  const dLon = deg2rad(lon2 - lon1); 
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-    ; 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-  const d = R * c; // Distância em km
-  return d;
-}
-
-const deg2rad = (deg) => {
-  return deg * (Math.PI/180)
-}
-
+import { getDistanceFromLatLonInKm } from "./getDistanceFromLatLonInKm";
 
 export const medicaoCompatibilidade = (paciente, coordsPaciente, pacoteEspecialistas) => {
 
   const { dadosEspecialistas, coordsEspecialistas } = pacoteEspecialistas;
+
+  if (!dadosEspecialistas || dadosEspecialistas.length === 0) return [];
   
   // PESOS
   const PESO_TESTES = 0.4;
   const PESO_DISTANCIA = 0.3;
   const PESO_CONDICOES = 0.3;
 
-  const especialistasComScore = dadosEspecialistas.map((especialista, index) => {
+  const especialistasProcessados = dadosEspecialistas.map((especialista, index) => {
     const coordsEspecialista = coordsEspecialistas[index];
 
     let scoreTotal = 0;
@@ -40,6 +21,10 @@ export const medicaoCompatibilidade = (paciente, coordsPaciente, pacoteEspeciali
       coordsPaciente.latitude, coordsPaciente.longitude,
       coordsEspecialista.latitude, coordsEspecialista.longitude
     );
+
+    if (distanciaKm > 50) {
+        return null; 
+    }
 
     // Se distância for 0km, pontuação máxima. Se for longe, pontuação cai (+1 para evitar divisão por zero).
     const scoreDistancia = 100 / (distanciaKm + 1);
@@ -68,6 +53,10 @@ export const medicaoCompatibilidade = (paciente, coordsPaciente, pacoteEspeciali
       especialidadesEspecialista.includes(condicao)
     ).length;
 
+    if (condicoesPaciente.length > 0 && matches === 0) {
+        return null;
+    }
+
     // Se o paciente tem 3 condições e o médico atende as 3, nota 100.
     // Se o paciente não tem condições listadas, damos uma nota neutra ou alta.
     let scoreCondicoes = 0;
@@ -85,9 +74,11 @@ export const medicaoCompatibilidade = (paciente, coordsPaciente, pacoteEspeciali
     return {
       ...especialista,
       coords: coordsEspecialista,
-      distancia_km: distanciaKm // Útil para mostrar na UI ("a 5km de você")
+      distancia_km: distanciaKm
     };
   });
 
-  return especialistasComScore.sort((a, b) => b.score_final - a.score_final);
+  return especialistasProcessados
+    .filter(Boolean) 
+    .sort((a, b) => b.score_final - a.score_final);
 };

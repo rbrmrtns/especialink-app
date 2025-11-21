@@ -11,6 +11,8 @@ import { db } from '../config/firebaseConfig';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
 import { AuthContext } from '../context/AuthContext';
 import { buscarEspecialistasPorEstado } from '../components/buscarEspecialistasPorEstado';
+import { obterCoordenadasMapbox} from '../utils/geocoding';
+import { getDistanceFromLatLonInKm } from '../utils/getDistanceFromLatLonInKm';
 // import { signOut } from 'firebase/auth'
 // import { auth } from '../config/firebaseConfig'
 
@@ -57,12 +59,15 @@ export default function Busca() {
         setListaConvenios(conveniosSnap.docs.map(d => ({ label: d.data().nome, value: d.data().nome })));
 
         let ufUsuario = '';
+        let coordsPaciente = null;
 
         if (userProfile.tipo_usuario === 'paciente') {
-             const docRef = doc(db, "usuarios", userProfile.id, "privado", "endereco_principal");
+             const docRef = doc(db, "usuarios", userProfile.id, "privado", "endereco");
              const docSnap = await getDoc(docRef);
              if (docSnap.exists()) {
                  ufUsuario = docSnap.data().uf;
+
+                 coordsPaciente = await obterCoordenadasMapbox(docSnap.data());
              }
         } else {
              Alert.alert(
@@ -80,12 +85,33 @@ export default function Busca() {
 
         if (ufUsuario) {
             const resultado = await buscarEspecialistasPorEstado(ufUsuario);
-            const especialistas = resultado.dadosEspecialistas;
             
-            setListaEspecialistas(especialistas);
+            const { dadosEspecialistas, coordsEspecialistas } = resultado;
+
+            console.log(dadosEspecialistas);
+            console.log(coordsEspecialistas);
+            
+            const especialistasComDistancia = dadosEspecialistas.map((especialista, index) => {
+                const coordsEspec = coordsEspecialistas[index];
+                let distancia = null;
+
+                if (coordsPaciente && coordsEspec) {
+                    distancia = getDistanceFromLatLonInKm(
+                        coordsPaciente.latitude, coordsPaciente.longitude,
+                        coordsEspec.latitude, coordsEspec.longitude
+                    );
+                }
+
+                return {
+                    ...especialista,
+                    distancia_km: distancia
+                };
+            });
+            
+            setListaEspecialistas(especialistasComDistancia);
 
             const cidadesUnicas = new Set();
-            especialistas.forEach(esp => {
+            especialistasComDistancia.forEach(esp => {
                 if (esp.consultorio && esp.consultorio.cidade) {
                     cidadesUnicas.add(esp.consultorio.cidade);
                 }
@@ -97,6 +123,7 @@ export default function Busca() {
             }));
             
             setListaCidades(cidadesFormatadas);
+
         }
 
       } catch (error) {

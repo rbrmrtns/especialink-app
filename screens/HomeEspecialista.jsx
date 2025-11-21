@@ -121,7 +121,7 @@ return (
               ))
             ) : (
               <Text className="text-center mt-10 text-gray-500 font-montRegular">
-                Você ainda não tem pacientes vinculados.
+                Nenhum paciente ainda entrou em contato com você pelo nosso app.
               </Text>
             )}
           </ScrollView>

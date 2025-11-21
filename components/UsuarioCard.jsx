@@ -28,7 +28,7 @@ const UsuarioCard = ({ dadosPerfil, onVerMaisPress }) => {
 
   const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const diasTrabalhoFinal = dadosPerfil.dias_trabalho && dadosPerfil.dias_trabalho.length > 0
-    ? dadosPerfil.dias_trabalho.map(nmro => diasSemana[nmro]).join(', ') 
+    ? dadosPerfil.dias_trabalho.sort((a, b) => a - b).map(nmro => diasSemana[nmro]).join(', ') 
     : 'Sob consulta';
 
   const horasTrabalho = dadosPerfil.expediente_inicio && dadosPerfil.expediente_fim ? 

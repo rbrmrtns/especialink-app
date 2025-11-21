@@ -1,18 +1,23 @@
 // import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { ActivityIndicator, Image, ImageBackground, PixelRatio, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native'
 import { CustomCheckbox } from '../components/CustomCheckbox';
 import { Dropdown } from '../components/Dropdown';
 import { TimeRangePicker } from '../components/TimeRangerPicker';
 import { CustomRadioGroup } from '../components/CustomRadioGroup';
 import WeekdaySelector from '@wniemiec-component-reactnative/weekday-selector';
-var randomColor = require('randomcolor');
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
+import { AuthContext } from '../context/AuthContext';
+import { doc, collection, getDoc, getDocs, updateDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebaseConfig';
+import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 
 export default function Edicao({ route }) {
+  const navigation = useNavigation();
+
   const { loading, userProfile } = useContext(AuthContext);
+
+  const { tipoEdicao } = route.params || {};
   
   if (loading || !userProfile) {
     return (
@@ -22,7 +27,16 @@ export default function Edicao({ route }) {
     );
   };
 
-  const { tipoEdicao } = route.params || {};
+  useEffect(() => {
+    if (!tipoEdicao) {
+        console.error("Erro: Tela de edição aberta sem 'tipoEdicao'.");
+        Alert.alert("Erro", "Parâmetro de edição inválido.", [
+            { text: "Voltar", onPress: () => navigation.goBack() }
+        ]);
+    }
+  }, [tipoEdicao, navigation]);
+
+  if (!tipoEdicao) return null;
 
   const fontScale = PixelRatio.getFontScale();
   const getFontSize = size => size / fontScale;
@@ -44,9 +58,7 @@ export default function Edicao({ route }) {
     return value.slice(0, 9);
   };
 
-  const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
-  const [senha, setSenha] = useState('');
   const [telefone, setTelefone] = useState('');
   const [numeroEndereco, setNumeroEndereco] = useState('');
   const [logradouro, setLogradouro] = useState('');
@@ -128,8 +140,7 @@ export default function Edicao({ route }) {
       }
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
-      const seconds = date.getSeconds().toString().padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
+      return `${hours}:${minutes}`;
     } catch (e) {
       console.error("Erro ao formatar hora:", e);
       return null; 
@@ -168,13 +179,7 @@ export default function Edicao({ route }) {
   };
 
   const handleDuracaoChange = (text) => {
-    const cleaned = text.replace(/\D/g, '');
-    setDuracaoConsulta(cleaned);
-    if (cleaned === '') {
-      setDuracaoDisplay('');
-    } else {
-      setDuracaoDisplay(`${cleaned} min`);
-    }
+    setDuracaoConsulta(text.replace(/\D/g, ''));
   };
 
   const [condicoes, setCondicoes] = useState([]);
@@ -186,6 +191,140 @@ export default function Edicao({ route }) {
 	const [pontTesteB, setPontTesteB] = useState(Array(5).fill(null));
 	const [pontTesteC, setPontTesteC] = useState(Array(3).fill(null));
 	const [pontTesteD, setPontTesteD] = useState(Array(5).fill(null));
+
+  const formatarTelefone = (text) => maskTelefone(text);
+  const formatarCEP = (text) => maskCEP(text);
+  const formatarPreco = (text) => (text ? `R$ ${text}` : '');
+  const formatarDuracao = (text) => (text ? `${text} min` : '');
+
+  const parseHorario = (horarioStr) => {
+    if (!horarioStr) return new Date();
+    const [horas, minutos] = horarioStr.split(':').map(Number);
+    const date = new Date();
+    date.setHours(horas);
+    date.setMinutes(minutos);
+    return date;
+  };
+
+  const [diasFormatados, setDiasFormatados] = useState([]);
+
+  useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const condicoesRef = collection(db, "condicoes");
+              const conveniosRef = collection(db, "convenios");
+
+              const [condicoesSnapshot, conveniosSnapshot] = await Promise.all([
+                  getDocs(condicoesRef),
+                  getDocs(conveniosRef)
+              ]);
+
+            const listaCondicoes = condicoesSnapshot.docs.map(doc => ({
+                id: doc.id,           
+                nome: doc.data().nome 
+            }));
+
+            const listaConvenios = conveniosSnapshot.docs.map(doc => ({
+                id: doc.id,
+                nome: doc.data().nome
+            }));
+
+              setCondicoes(listaCondicoes);
+              setConvenios(listaConvenios);
+
+          } catch (error) {
+              console.error("Erro ao buscar dados:", error);
+          }
+      };
+
+      fetchData();
+  }, []);
+
+  useEffect(() => {
+    const inicializarDados = async () => {
+      if (!userProfile) return;
+
+      setNome(userProfile.nome || '');
+      
+      if (userProfile.telefone) {
+        setTelefone(userProfile.telefone);
+        setTelefoneDisplay(formatarTelefone(userProfile.telefone));
+      }
+
+      const cidadeInicial = userProfile.cidade || userProfile.consultorio?.cidade || '';
+      setCidade(cidadeInicial);
+
+      let dadosEndereco = null;
+
+      if (userProfile.tipo_usuario === 'paciente') {
+          try {
+            const docRef = doc(db, "usuarios", userProfile.id, "privado", "endereco");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+               dadosEndereco = docSnap.data();
+            }
+          } catch (err) {
+             console.error("Erro ao buscar endereço:", err);
+          }
+
+          setResponsavel(userProfile.is_responsavel || false);
+          setCondicoesSelecionadas(userProfile.condicoes_mentais || []);
+
+      } else {
+          dadosEndereco = userProfile.consultorio;
+          
+          setTipo(userProfile.area || '');
+          setConselho(userProfile.conselho || '');
+          setConselhoNmro(userProfile.conselho_nmro || '');
+          setDescricao(userProfile.descricao || '');
+          
+          if (userProfile.preco_consulta) {
+             const precoString = String(userProfile.preco_consulta);
+             setPrecoConsulta(precoString);
+             setPrecoDisplay(formatarPreco(precoString));
+          }
+          
+          if (userProfile.duracao_consulta) {
+             const duracaoString = String(userProfile.duracao_consulta);
+             setDuracaoConsulta(duracaoString);
+             setDuracaoDisplay(formatarDuracao(duracaoString));
+          }
+
+          const diasOriginais = userProfile.dias_trabalho || [];
+
+          setDiasFormatados(diasOriginais.map(dia => {
+             return dia === 0 ? 6 : dia - 1;
+          }));
+
+          setDiasDeTrabalho(diasOriginais);
+          
+          if (userProfile.expediente_inicio) {
+             setExpedienteInicio(parseHorario(userProfile.expediente_inicio));
+          }
+          if (userProfile.expediente_fim) {
+             setExpedienteFim(parseHorario(userProfile.expediente_fim));
+          }
+
+          setConveniosSelecionados(userProfile.convenios || []);
+          setCondicoesSelecionadas(userProfile.especialidades || []); 
+      }
+
+      if (dadosEndereco) {
+          setLogradouro(dadosEndereco.logradouro || '');
+          setNumeroEndereco(dadosEndereco.numero || '');
+          setBairro(dadosEndereco.bairro || '');
+          setCidade(dadosEndereco.cidade || cidadeInicial); 
+          setUF(dadosEndereco.uf || '');
+          
+          if (dadosEndereco.cep) {
+             setCEP(dadosEndereco.cep);
+             setCEPDisplay(formatarCEP(dadosEndereco.cep));
+          }
+      }
+    };
+
+    inicializarDados();
+  }, [userProfile]);
 
 	const stepsByType = {
 		dados_pessoais: 2,
@@ -268,7 +407,7 @@ export default function Edicao({ route }) {
   //TAGS
   const [visibleSections, setVisibleSections] = useState({
     condicoes: true,
-    convenios: false 
+    convenios: true 
   });
 
   //Toggle section of tags
@@ -320,40 +459,6 @@ export default function Edicao({ route }) {
     );
   };
 
-  useEffect(() => {
-      const fetchData = async () => {
-          try {
-              const condicoesRef = collection(db, "condicoes");
-              const conveniosRef = collection(db, "convenios");
-
-              const [condicoesSnapshot, conveniosSnapshot] = await Promise.all([
-                  getDocs(condicoesRef),
-                  getDocs(conveniosRef)
-              ]);
-
-            const listaCondicoes = condicoesSnapshot.docs.map(doc => ({
-                id: doc.id,           
-                nome: doc.data().nome 
-            }));
-
-            const listaConvenios = conveniosSnapshot.docs.map(doc => ({
-                id: doc.id,
-                nome: doc.data().nome
-            }));
-
-              setCondicoes(listaCondicoes);
-              setConvenios(listaConvenios);
-
-          } catch (error) {
-              console.error("Erro ao buscar dados:", error);
-          } finally {
-              setLoading(false);
-          }
-      };
-
-      fetchData();
-  }, []);
-
   const radioOptions = [
   { value: -3, display: '3' },
   { value: -2, display: '2' },
@@ -372,145 +477,138 @@ export default function Edicao({ route }) {
 
   const handleWeekDay = (weekday, selected) => {
     if (selected) {
-      setDiasDeTrabalho(diasAnteriores => 
-        [...diasAnteriores, weekday]
-      );
+      if (weekday >= 0 && weekday <= 5) {
+        setDiasDeTrabalho(diasAnteriores => 
+          [...diasAnteriores, weekday + 1]
+        );
+      } else if (weekday === 6) {
+        setDiasDeTrabalho(diasAnteriores => 
+          [...diasAnteriores, 0]
+        );
+      } else {
+        alert('Dia inválido!');
+      }
     } else {
-      setDiasDeTrabalho(diasAnteriores =>
-        diasAnteriores.filter(dia => dia !== weekday)
-      );
+      if (weekday >= 0 && weekday <= 5) {
+        setDiasDeTrabalho(diasAnteriores =>
+          diasAnteriores.filter(dia => dia !== weekday + 1)
+        );
+      } else if (weekday === 6) {
+        setDiasDeTrabalho(diasAnteriores =>
+          diasAnteriores.filter(dia => dia !== 0)
+        );
+      } else {
+        alert('Dia inválido!');
+      }
     }
   };
 
-// const handleSignup = async () => {
-//   const camposObrigatoriosComuns = {
-//       email, nome, senha, telefone, logradouro, numeroEndereco, bairro, cidade, UF, CEP
-//   };
-//   const testesObrigatorios = { pontTesteA, pontTesteB, pontTesteC, pontTesteD };
+const handleUpdate = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
 
-//   let camposObrigatorios = { ...camposObrigatoriosComuns };
-//   if (tipoUsuario === 'especialista') {
-//       camposObrigatorios = {
-//           ...camposObrigatorios,
-//           tipo, conselho, conselhoNmro
-//       };
-//   }
-
-//   let camposFaltando = false;
-//   for (const [key, value] of Object.entries(camposObrigatorios)) {
-//       if (value === '' || (Array.isArray(value) && value.length === 0)) {
-//           console.log(`Campo faltando: ${key}`);
-//           camposFaltando = true;
-//           break;
-//       }
-//   }
-
-//   if (!camposFaltando) {
-//       for (const [key, value] of Object.entries(testesObrigatorios)) {
-//           if (!Array.isArray(value) || value.some(item => item === null)) {
-//               console.log(`Teste incompleto: ${key}`);
-//               camposFaltando = true;
-//               break;
-//           }
-//       }
-//   }
-
-//   if (camposFaltando) {
-//       Alert.alert('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios e responda a todos os testes antes de cadastrar.');
-//       return;
-//   }
-
-//   const selecoes = {
-//     condicoes: condicoesSelecionadas,
-//   };
-
-//   function somador(total, num) {
-//       return total + num;
-//   }
-
-//   let dadosUsuario = {
-//       email,
-//       nome,
-//       telefone,
-//       cor_img_perfil: randomColor({ luminosity: 'light', hue: 'random', format: 'hex' }),
-//       ativo: true,
-//       cidade,
-//       tipo_usuario: tipoUsuario,
-//       pont_test_a: pontTesteA.map(valor => parseInt(valor, 10)).reduce(somador),
-//       pont_test_b: pontTesteB.map(valor => parseInt(valor, 10)).reduce(somador),
-//       pont_test_c: pontTesteC.map(valor => parseInt(valor, 10)).reduce(somador),
-//       pont_test_d: pontTesteD.map(valor => parseInt(valor, 10)).reduce(somador),
-//   };
-
-//   let enderecoPaciente = null;
-
-//   if (tipoUsuario === 'paciente') {
-//       dadosUsuario.is_responsavel = responsavel;
-//       dadosUsuario.condicoes_mentais = condicoesSelecionadas;
-
-//       enderecoPaciente = {
-//         logradouro: logradouro,
-//         numero: numeroEndereco,
-//         bairro: bairro,
-//         cidade: cidade,
-//         uf: UF,
-//         cep: CEP
-//       }
-//   }
-
-//   else if (tipoUsuario === 'especialista') {
-//       const horaInicioFormatada = formatDateToTimeString(expedienteInicio);
-//       const horaFimFormatada = formatDateToTimeString(expedienteFim);
-
-//       if (horaInicioFormatada === null || horaFimFormatada === null) {
-//           Alert.alert("Erro de Formato", "Horário de expediente inválido.");
-//           return; 
-//       }
-
-//       dadosUsuario.area = tipo;
-//       dadosUsuario.conselho = conselho;
-//       dadosUsuario.conselho_nmro = conselhoNmro;
-//       dadosUsuario.descricao = descricao;
-//       dadosUsuario.preco_consulta = parseFloat(precoConsulta);
-//       dadosUsuario.duracao_consulta = parseInt(duracaoConsulta);
-//       dadosUsuario.dias_trabalho = diasDeTrabalho;
-//       dadosUsuario.expediente_inicio = horaInicioFormatada;
-//       dadosUsuario.expediente_fim = horaFimFormatada;
-//       dadosUsuario.convenios = conveniosSelecionados;
-//       dadosUsuario.especialidades = condicoesSelecionadas; 
-//       dadosUsuario.consultorio = {
-//           logradouro: logradouro,
-//           numero: numeroEndereco,
-//           bairro: bairro,
-//           cidade: cidade,
-//           uf: UF,
-//           cep: CEP
-//       };
-//   }
-
-//   try {
-//     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-//     const user = userCredential.user;
+  const somador = (total, num) => total + num;
+  
+  try {
+    const userRef = doc(db, "usuarios", user.uid);
     
-//     dadosUsuario.id = user.uid;
+    let dadosParaAtualizar = {};
 
-//     await setDoc(doc(db, "usuarios", user.uid), dadosUsuario);
+    switch (tipoEdicao) {
+      case 'dados_pessoais':
+        dadosParaAtualizar = {
+          nome: nome,
+          telefone: telefone,
+          cidade: cidade,
+        };
 
-//     if (tipoUsuario === 'paciente' && enderecoPaciente) {
-//         await setDoc(doc(db, "usuarios", user.uid, "privado", "endereco"), enderecoPaciente);
-//     }
+        const objetoEndereco = {
+            logradouro: logradouro,
+            numero: numeroEndereco,
+            bairro: bairro,
+            cidade: cidade,
+            uf: UF,
+            cep: CEP
+        };
 
-//     Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+        if (tipoUsuario === 'paciente') {
+          dadosParaAtualizar.is_responsavel = responsavel;
 
-//   } catch (error) {
-//     console.error('Erro ao cadastrar:', error);
-//     let mensagem = 'Ocorreu um erro ao realizar o cadastro.';
-//     if (error.code === 'auth/email-already-in-use') mensagem = 'Este e-mail já está cadastrado.';
-//     if (error.code === 'auth/weak-password') mensagem = 'A senha deve ter pelo menos 6 caracteres.';
-//     if (error.code === 'auth/invalid-email') mensagemErro = 'O formato do email é inválido.';
-//     Alert.alert('Erro', mensagem);
-//   }
-// };
+          await updateDoc(userRef, dadosParaAtualizar);
+
+          const enderecoRef = doc(db, "usuarios", user.uid, "privado", "endereco");
+          
+          await setDoc(enderecoRef, objetoEndereco, { merge: true });
+
+        } else {
+          dadosParaAtualizar.consultorio = objetoEndereco;
+          await updateDoc(userRef, dadosParaAtualizar);
+
+        }
+        break;
+
+      case 'dados_profissionais':
+        if (tipoUsuario !== 'especialista') return;
+
+        const horaInicio = formatDateToTimeString(expedienteInicio);
+        const horaFim = formatDateToTimeString(expedienteFim);
+
+        if (!horaInicio || !horaFim) {
+           Alert.alert("Erro", "Horário inválido.");
+           return;
+        }
+
+        dadosParaAtualizar = {
+          area: tipo,
+          conselho: conselho,
+          conselho_nmro: conselhoNmro,
+          descricao: descricao,
+          preco_consulta: parseFloat(precoConsulta),
+          duracao_consulta: parseInt(duracaoConsulta),
+          dias_trabalho: diasDeTrabalho,
+          expediente_inicio: horaInicio,
+          expediente_fim: horaFim,
+          convenios: conveniosSelecionados,
+          especialidades: condicoesSelecionadas
+        };
+
+        await updateDoc(userRef, dadosParaAtualizar);
+        break;
+
+      case 'condicoes':
+        if (tipoUsuario !== 'paciente') return;
+
+        dadosParaAtualizar = {
+          condicoes_mentais: condicoesSelecionadas
+        };
+
+        await updateDoc(userRef, dadosParaAtualizar);
+        break;
+
+      case 'refazer_teste':
+        dadosParaAtualizar = {
+          pont_test_a: pontTesteA.map(v => parseInt(v, 10)).reduce(somador, 0),
+          pont_test_b: pontTesteB.map(v => parseInt(v, 10)).reduce(somador, 0),
+          pont_test_c: pontTesteC.map(v => parseInt(v, 10)).reduce(somador, 0),
+          pont_test_d: pontTesteD.map(v => parseInt(v, 10)).reduce(somador, 0),
+        };
+
+        await updateDoc(userRef, dadosParaAtualizar);
+        break;
+
+      default:
+        console.log("Nenhum tipo de edição selecionado");
+        return;
+    }
+
+    Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
+    navigation.goBack();
+
+  } catch (error) {
+    console.error('Erro ao atualizar:', error);
+    Alert.alert('Erro', 'Não foi possível atualizar os dados.');
+  }
+};
               
 
   return (
@@ -520,16 +618,23 @@ export default function Edicao({ route }) {
       {/* Background Image */}
       <ImageBackground source={require('./../assets/images/bg3.png')} resizeMode="cover" imageStyle= {{opacity:0.3}}>
 
+      <TouchableOpacity 
+        onPress={() => navigation.goBack()} 
+        className="absolute top-14 left-5 z-50 p-2 bg-white/40 rounded-full"
+      >
+        <ArrowLeftIcon size={24} color="black" />
+      </TouchableOpacity>
+
       {/* Fixed top bar */}
       <View className="pt-12 pb-10">
   
         {/* Title */}
         <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-        className="text-center mt-8 shadow-md">Cadastre-se no sistema</Text>
+        className="text-center mt-8 shadow-md">Editar dados</Text>
 
         {/* Title of the step */}
         <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(20) }}
-        className="text-center mt-1 color-orange shadow-md">{getStepText(step, tipoUsuario)}</Text>
+        className="text-center mt-1 color-orange shadow-md">{getStepText(step, tipoEdicao)}</Text>
 
         {/* Progress Bar */}
         <View className="flex-row items-center justify-center my-5 w-10 mx-auto">
@@ -557,46 +662,6 @@ export default function Edicao({ route }) {
                 </TouchableOpacity>
               </View>
 
-              {/* Tipo Usuário */}
-                <View className="mb-6">
-                  <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className="mb-2">Tipo de Usuário</Text>
-
-                  <View className="flex-row">
-                    <TouchableOpacity
-                      className={`mt-2 py-2 px-5 rounded-full shadow-sm mr-5 ${tipoUsuario === 'paciente' ? 'bg-orange' : 'bg-white'}`}
-                      onPress={() => setTipoUsuario('paciente')}>
-
-                      <Text style={{ fontFamily: 'Montserrat_500Medium', fontSize: getFontSize(14) }}
-                      className={`${tipoUsuario === 'paciente' ? 'text-white' : 'text-black'}`}>Paciente</Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      className={`mt-2 py-2 px-5 rounded-full shadow-sm ${tipoUsuario === 'especialista' ? 'bg-orange' : 'bg-white'}`}
-                      onPress={() => setTipoUsuario('especialista')}>
-
-                      <Text style={{ fontFamily: 'Montserrat_500Medium', fontSize: getFontSize(14)}}
-                      className={`${tipoUsuario === 'especialista' ? 'text-white' : 'text-black'}`}>Especialista</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                </View>
-
-              {/* E-mail */}
-                <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">E-mail</Text>
-                  <TextInput
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                    placeholder="Digite o seu e-mail"
-                    value={email}
-                    onChangeText={setEmail}
-                    inputMode="email"
-                    style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-                  />
-                </View>
-
               {/* Nome */}
                 <View className="mb-6">
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
@@ -606,20 +671,6 @@ export default function Edicao({ route }) {
                     placeholder="Digite o seu nome"
                     value={nome}
                     onChangeText={setNome}
-                    style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-                  />
-                </View>
-
-              {/* Senha */}
-                <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Senha</Text>
-                  <TextInput
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                    placeholder="Digite a sua senha"
-                    value={senha}
-                    onChangeText={setSenha}
-                    secureTextEntry={true}
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
                 </View>
@@ -668,14 +719,13 @@ export default function Edicao({ route }) {
                   </Text>
                 </TouchableOpacity>
 
-                {/* Next button */}
                 <TouchableOpacity 
-                  onPress={handleNext} 
+                  onPress={handleUpdate} 
                   className="py-1 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
-                    Prosseguir
+                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -702,6 +752,7 @@ export default function Edicao({ route }) {
                     placeholder="Digite o número de sua residência"
                     value={numeroEndereco}
                     onChangeText={setNumeroEndereco}
+                    inputMode="numeric"
                     keyboardType="numeric"
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
@@ -770,19 +821,7 @@ export default function Edicao({ route }) {
       {step === 1 && tipoEdicao === "dados_profissionais" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+            <View className="flex justify-center items-end -mt-2 -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
                   className="py-1 bg-orange rounded-full w-20">
@@ -824,7 +863,7 @@ export default function Edicao({ route }) {
             {/* Conselho */}
             <View className="mb-6">
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Número do Conselho</Text>
+                  className= "mb-3">Número de Cadastro no Conselho</Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu número no conselho"
@@ -880,11 +919,12 @@ export default function Edicao({ route }) {
 
               {/* Valor Consulta */}
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                className= "mb-3">Valor da Consulta</Text>
+              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}className= "mb-3">
+                Valor da Consulta
+                <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}} className= "mb-3"> (em reais)</Text>
+              </Text>
                 <TextInput
                   className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                  placeholder="Digite o valor da consulta em reais (R$)"
                   value={precoDisplay}
                   onChangeText={handlePrecoChange}
                   inputMode="numeric"
@@ -895,17 +935,26 @@ export default function Edicao({ route }) {
 
               {/* Duração Consulta */}
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                className= "mb-3">Duração da Consulta</Text>
+              <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                Duração da Consulta
+                <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}} className= "mb-3"> (em minutos)</Text>
+              </Text>
+              <View className="flex-row items-center border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white justify-start">
                 <TextInput
-                  className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                  placeholder="Digite a duração da consulta em minutos"
-                  value={duracaoDisplay}
+                  value={duracaoConsulta}
                   onChangeText={handleDuracaoChange}
                   inputMode="numeric"
                   keyboardType="numeric"
+                  className="text-left w-6"
                   style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-              />
+                />
+
+                {duracaoConsulta ? (
+                  <Text className="text-gray-500 font-montMedium ml-1">
+                    min
+                  </Text>
+                ) : null}
+              </View>
             </View>
 
             {/* Dias de Trabalho */}
@@ -915,6 +964,7 @@ export default function Edicao({ route }) {
                 <WeekdaySelector 
                   onPress={handleWeekDay}
                   bgColor="#ff7900"
+                  selectedOps={diasFormatados}
                 />
             </View>
 
@@ -951,12 +1001,12 @@ export default function Edicao({ route }) {
 
                 {/* Next button */}
                 <TouchableOpacity 
-                  onPress={handleNext} 
+                  onPress={handleUpdate} 
                   className="py-1 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
+                    className="text-center text-white">
+                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1019,26 +1069,14 @@ export default function Edicao({ route }) {
       {step === 1 && tipoEdicao === "condicoes" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
+            <View className="flex justify-center items-end -mt-2 -mr-2">
                 <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
+                  onPress={handleUpdate} 
                   className="py-1 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
+                    className="text-center text-white">
+                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1076,18 +1114,7 @@ export default function Edicao({ route }) {
       {step === 1 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
+            <View className="flex justify-center items-end -mt-2 -mr-2">
                 {/* Next button */}
                 <TouchableOpacity 
                   onPress={handleNext} 
@@ -1618,12 +1645,12 @@ export default function Edicao({ route }) {
 
                 {/* Save button */}
                 <TouchableOpacity 
-                  onPress={handleSignup} 
+                  onPress={handleUpdate} 
                   className="py-1 bg-orange rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="text-center text-white">
-                    Cadastrar
+                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>

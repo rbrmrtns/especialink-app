@@ -61,7 +61,7 @@ export default function AgendamentoConsulta({ route }) {
 
         <TouchableOpacity 
           onPress={() => navigation.goBack()} 
-          className="absolute top-16 left-5 z-10 p-2 bg-white/20 rounded-full"
+          className="absolute top-16 left-5 z-10 p-2 bg-white/40 rounded-full"
         >
           <ArrowLeftIcon size={24} color="black" />
         </TouchableOpacity>
