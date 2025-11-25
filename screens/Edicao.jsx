@@ -729,6 +729,22 @@ const handleUpdate = async () => {
                   </Text>
                 </TouchableOpacity>
               </View>
+
+            {/* CEP */}
+            <View className="mb-6">
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
+                  className= "mb-3">CEP</Text>
+                  <TextInput
+                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
+                    placeholder="Digite o CEP de onde reside"
+                    value={CEPDisplay}
+                    onChangeText={handleCEPChange}
+                    inputMode="numeric"
+                    keyboardType="numeric"
+                    maxLength={9}
+                    style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
+                  />
+            </View>
               
             {/* Logradouro */}
             <View className="mb-6">
@@ -794,22 +810,6 @@ const handleUpdate = async () => {
                     items={listaDeUFs}
                     placeholder={placeholderEstado}
                     value={UF}
-                    style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-                  />
-            </View>
-
-            {/* CEP */}
-            <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">CEP</Text>
-                  <TextInput
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                    placeholder="Digite o CEP de onde reside"
-                    value={CEPDisplay}
-                    onChangeText={handleCEPChange}
-                    inputMode="numeric"
-                    keyboardType="numeric"
-                    maxLength={9}
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
             </View>

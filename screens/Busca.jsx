@@ -87,9 +87,6 @@ export default function Busca() {
             const resultado = await buscarEspecialistasPorEstado(ufUsuario);
             
             const { dadosEspecialistas, coordsEspecialistas } = resultado;
-
-            console.log(dadosEspecialistas);
-            console.log(coordsEspecialistas);
             
             const especialistasComDistancia = dadosEspecialistas.map((especialista, index) => {
                 const coordsEspec = coordsEspecialistas[index];
@@ -137,7 +134,19 @@ export default function Busca() {
   const especialistasFiltrados = listaEspecialistas.filter(esp => {
       if (esp.area !== areaDeAtuacao) return false;
 
-      if (nome && !esp.nome.toLowerCase().includes(nome.toLowerCase())) return false;
+      if (nome) {
+          const termoBusca = nome.toLowerCase().trim();
+          const nomeEspecialista = esp.nome.toLowerCase();
+
+          if (termoBusca.includes(' ')) {
+              if (!nomeEspecialista.includes(termoBusca)) return false;
+          } else {
+              const partesDoNome = nomeEspecialista.split(' ');
+              const temMatchInicial = partesDoNome.some(parte => parte.startsWith(termoBusca));
+              
+              if (!temMatchInicial) return false;
+          }
+      }
 
       if (cidade && esp.consultorio?.cidade !== cidade) return false;
 

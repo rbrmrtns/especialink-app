@@ -161,11 +161,8 @@ export default function Perfil() {
                       onPress={()=> navigation.navigate('Edicao', { tipoEdicao: 'condicoes'})}
                     >
                       <View className="flex-row">
-                        <Icon 
-                            name="brain" 
-                            size={32} 
-                            style={{ marginRight: 16 }} // Equivalente ao mr-4
-                        />
+                        <Image className="w-8 h-8 mr-4" 
+                                source={require('../assets/icons/brain.png')} />
                         <Text style={{ fontFamily: 'Montserrat_500Medium' }}
                         className="mt-1">
                           Alterar Condições Mentais

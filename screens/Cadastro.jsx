@@ -12,6 +12,7 @@ import { doc, collection, getDocs, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebaseConfig';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 export default function Cadastro() {
   const navigation = useNavigation();
@@ -53,6 +54,8 @@ export default function Cadastro() {
   const [telefoneDisplay, setTelefoneDisplay] = useState('');
   const [CEPDisplay, setCEPDisplay] = useState('');
 
+  const [loadingCEP, setLoadingCEP] = useState(false);
+
   const handleTelefoneChange = (text) => {
     const cleaned = text.replace(/\D/g, '');
     setTelefone(cleaned);
@@ -60,11 +63,34 @@ export default function Cadastro() {
     setTelefoneDisplay(formatted);
   };
 
-  const handleCEPChange = (text) => {
+  const handleCEPChange = async (text) => {
     const cleaned = text.replace(/\D/g, '');
     setCEP(cleaned);
     const formatted = maskCEP(cleaned);
     setCEPDisplay(formatted);
+
+    if (cleaned.length === 8) {
+      setLoadingCEP(true);
+      
+      try {
+        const response = await axios.get(`https://viacep.com.br/ws/${cleaned}/json/`);
+        const data = response.data;
+
+        if (!data.erro) {
+          if (data.logradouro) setLogradouro(data.logradouro);
+          if (data.bairro) setBairro(data.bairro);
+          if (data.localidade) setCidade(data.localidade);
+          if (data.uf) setUF(data.uf);
+        } else {
+          alert("CEP não encontrado.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
+        alert("Erro ao buscar CEP. Verifique sua conexão.");
+      } finally {
+        setLoadingCEP(false);
+      }
+    }
   };
 
   const listaDeUFs = [
@@ -424,12 +450,14 @@ const handleSignup = async () => {
       return;
   }
 
+  const emailLimpo = email.trim();
+
   function somador(total, num) {
       return total + num;
   }
 
   let dadosUsuario = {
-      email,
+      email: emailLimpo,
       nome,
       telefone,
       cor_img_perfil: randomColor({ luminosity: 'light', hue: 'random', format: 'hex' }),
@@ -489,7 +517,7 @@ const handleSignup = async () => {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+    const userCredential = await createUserWithEmailAndPassword(auth, emailLimpo, senha);
     const user = userCredential.user;
     
     dadosUsuario.id = user.uid;
@@ -500,7 +528,11 @@ const handleSignup = async () => {
         await setDoc(doc(db, "usuarios", user.uid, "privado", "endereco"), enderecoPaciente);
     }
 
-    Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+    if (tipoUsuario === 'paciente') {
+      Alert.alert('Cadasto Bem-sucedido!', 'Caso não tenha preenchido todos os dados agora, recomendamos fazer isso assim que possível, para que o app faça melhores indicações de especialistas para você.');
+    } else if (tipoUsuario === 'especialista') {
+      Alert.alert('Cadasto Bem-sucedido!', 'Caso não tenha preenchido todos os dados agora, recomendamos fazer isso assim que possível, para que o app te recomende para mais pacientes.');
+    }
 
   } catch (error) {
     console.error('Erro ao cadastrar:', error);
@@ -549,25 +581,14 @@ const handleSignup = async () => {
 
       {/* Step 1 */}
        {step === 1 && (
-          <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            {/* Next Button */}
-              <View className="flex justify-center items-end -mt-2 -mr-2">
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
-                  </Text>
-                </TouchableOpacity>
-              </View>
+          <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
 
               {/* Tipo Usuário */}
                 <View className="mb-6">
-                  <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className="mb-2">Tipo de Usuário</Text>
+                  <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className="mb-2">
+                    Tipo de Usuário
+                    <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                  </Text>
 
                   <View className="flex-row">
                     <TouchableOpacity
@@ -592,8 +613,10 @@ const handleSignup = async () => {
 
               {/* E-mail */}
                 <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">E-mail</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  E-mail
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu e-mail"
@@ -606,8 +629,10 @@ const handleSignup = async () => {
 
               {/* Nome */}
                 <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Nome</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Nome
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu nome"
@@ -619,8 +644,10 @@ const handleSignup = async () => {
 
               {/* Senha */}
                 <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Senha</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Senha
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite a sua senha"
@@ -633,8 +660,10 @@ const handleSignup = async () => {
 
               {/* Telefone */}
                 <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Telefone</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Telefone
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu número de telefone"
@@ -657,28 +686,11 @@ const handleSignup = async () => {
                 />
                 </View>
               )}
-          </View>
-        )}
 
-      {/* Step 2 */}
-      {step === 2 && (
-            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-              {/* Back Button */}
-              <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+              <View className="flex justify-center items-end -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
+                  className="py-2 px-3 bg-orange rounded-full">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -686,11 +698,55 @@ const handleSignup = async () => {
                   </Text>
                 </TouchableOpacity>
               </View>
+          </View>
+        )}
+
+      {/* Step 2 */}
+      {step === 2 && (
+            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
+              {/* Back Button */}
+              <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* CEP */}
+            <View className="mb-6">
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  CEP
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
+                  <View className="flex-row items-center border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white">
+                    <TextInput
+                      placeholder="Digite o CEP de onde reside"
+                      value={CEPDisplay}
+                      onChangeText={handleCEPChange}
+                      inputMode="numeric"
+                      keyboardType="numeric"
+                      maxLength={9}
+                      className="flex-1"
+                      style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
+                    />
+
+                    {loadingCEP && (
+                      <ActivityIndicator size="small" color="#ffbf00" className="ml-2" />
+                    )}
+                  </View>
+            </View>
               
             {/* Logradouro */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Logradouro</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Logradouro
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o logradouro de sua residência"
@@ -702,8 +758,10 @@ const handleSignup = async () => {
 
             {/* Número */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Número</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Número
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o número de sua residência"
@@ -717,8 +775,10 @@ const handleSignup = async () => {
 
             {/* Bairro */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Bairro</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Bairro
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o bairro em que reside"
@@ -730,8 +790,10 @@ const handleSignup = async () => {
 
             {/* Cidade */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Cidade</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Cidade
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite a cidade em que reside"
@@ -743,8 +805,10 @@ const handleSignup = async () => {
 
             {/* UF */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Estado</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Estado
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <Dropdown
                     className="border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
                     onValueChange={setUF}
@@ -755,45 +819,10 @@ const handleSignup = async () => {
                   />
             </View>
 
-            {/* CEP */}
-            <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">CEP</Text>
-                  <TextInput
-                    className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
-                    placeholder="Digite o CEP de onde reside"
-                    value={CEPDisplay}
-                    onChangeText={handleCEPChange}
-                    inputMode="numeric"
-                    keyboardType="numeric"
-                    maxLength={9}
-                    style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
-                  />
-            </View>
-  
-          </View>
-      )}
-
-      {/* Step 3 */}
-      {step === 3 && tipoUsuario === 'especialista' && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+            <View className="flex justify-center items-end -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
+                  className="py-2 px-3 bg-orange rounded-full">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -801,11 +830,33 @@ const handleSignup = async () => {
                   </Text>
                 </TouchableOpacity>
               </View>
+  
+          </View>
+      )}
+
+      {/* Step 3 */}
+      {step === 3 && tipoUsuario === 'especialista' && (
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
+
+            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                {/* Back Button */}
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Especialidade */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Área de Atuação</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Área de Atuação
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <Dropdown
                     className="border border-gray-200 rounded-full py-1 px-1 shadow-sm bg-white"
                     onValueChange={setTipo}
@@ -818,8 +869,10 @@ const handleSignup = async () => {
 
             {/* Conselho */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Conselho</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Conselho
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite a sigla do conselho"
@@ -831,8 +884,10 @@ const handleSignup = async () => {
 
             {/* Conselho */}
             <View className="mb-6">
-                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                  className= "mb-3">Número de Cadastro no Conselho</Text>
+                <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}} className= "mb-3">
+                  Número de Registro no Conselho
+                  <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+                </Text>
                   <TextInput
                     className="border border-gray-200 rounded-full py-3 px-6 shadow-sm bg-white"
                     placeholder="Digite o seu número no conselho"
@@ -856,32 +911,33 @@ const handleSignup = async () => {
                 />
               </View>
 
+              <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
         )}
 
         {step === 4 && tipoUsuario === 'especialista' && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
                 {/* Back Button */}
                 <TouchableOpacity 
                   onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -948,33 +1004,34 @@ const handleSignup = async () => {
                 />
             </View>
 
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
         )}
 
         {/* Step 5 */}
       {step === 5 && tipoUsuario === 'especialista' && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
                 {/* Back Button */}
                 <TouchableOpacity 
                   onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -986,10 +1043,10 @@ const handleSignup = async () => {
                 <View className="flex-row mb-5">
                     <View className="ml-3 mt-1">
                       <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(12)}}
-                      className="-mb-1 ">Escolha as condições mentais em que você é</Text>
+                      className="-mb-1 ">Escolha as condições mentais em que você tem</Text>
 
                       <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
-                      className="mt-1">Especialista</Text>
+                      className="mt-1">Especialidade</Text>
                     </View>
                 </View>
             
@@ -1030,33 +1087,34 @@ const handleSignup = async () => {
 
               </View>
 
+              <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
         )}
 
         {/* Step 5 */}
       {step === 3 && tipoUsuario === 'paciente' && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
                 {/* Back Button */}
                 <TouchableOpacity 
                   onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1087,29 +1145,10 @@ const handleSignup = async () => {
 
               </View>
 
-            </View>
-        )}
-
-        {/* Step 6 */}
-      {((step === 4 && tipoUsuario === 'paciente') || (step === 6 && tipoUsuario === 'especialista')) && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+              <View className="flex justify-center items-end -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
+                  className="py-2 px-3 bg-orange rounded-full">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1118,9 +1157,31 @@ const handleSignup = async () => {
                 </TouchableOpacity>
               </View>
 
+            </View>
+        )}
+
+        {/* Step 6 */}
+      {((step === 4 && tipoUsuario === 'paciente') || (step === 6 && tipoUsuario === 'especialista')) && (
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
+
+            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                {/* Back Button */}
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}}
-                className= "mb-3">{tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}</Text>
+              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className= "mb-3">
+                {tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}
+                <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+              </Text>
             </View>
 
             {/* Questão A-1 */}
@@ -1285,29 +1346,10 @@ const handleSignup = async () => {
               />
             </View>
 
-          </View>
-        )}
-
-        {/* Step 7 */}
-      {((step === 5 && tipoUsuario === 'paciente') || (step === 7 && tipoUsuario === 'especialista')) && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+            <View className="flex justify-center items-end -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
+                  className="py-2 px-3 bg-orange rounded-full">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1316,9 +1358,31 @@ const handleSignup = async () => {
                 </TouchableOpacity>
               </View>
 
+          </View>
+        )}
+
+        {/* Step 7 */}
+      {((step === 5 && tipoUsuario === 'paciente') || (step === 7 && tipoUsuario === 'especialista')) && (
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
+
+            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                {/* Back Button */}
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}}
-                className= "mb-3">{tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}</Text>
+              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className= "mb-3">
+                {tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}
+                <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+              </Text>
             </View>
 
             {/* Questão B-6 */}
@@ -1483,29 +1547,10 @@ const handleSignup = async () => {
               />
             </View>
 
-          </View>
-        )}
-
-        {/* Step 8 */}
-      {((step === 6 && tipoUsuario === 'paciente') || (step === 8 && tipoUsuario === 'especialista')) && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
-                {/* Back Button */}
-                <TouchableOpacity 
-                  onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-gray-400">
-                    Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
+            <View className="flex justify-center items-end -mr-2">
                 <TouchableOpacity 
                   onPress={handleNext} 
-                  className="py-2 bg-orange rounded-full w-20">
+                  className="py-2 px-3 bg-orange rounded-full">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-white">
@@ -1514,9 +1559,31 @@ const handleSignup = async () => {
                 </TouchableOpacity>
               </View>
 
+          </View>
+        )}
+
+        {/* Step 8 */}
+      {((step === 6 && tipoUsuario === 'paciente') || (step === 8 && tipoUsuario === 'especialista')) && (
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
+
+            <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
+                {/* Back Button */}
+                <TouchableOpacity 
+                  onPress={handlePrevious} 
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-gray-400">
+                    Voltar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}}
-                className= "mb-3">{tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}</Text>
+              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className= "mb-3">
+                {tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}
+                <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+              </Text>
             </View>
 
             {/* Questão C-11 */}
@@ -1615,40 +1682,43 @@ const handleSignup = async () => {
               />
             </View>
 
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
           </View>
         )}
         
         {/* Step 9 */}
       {((step === 7 && tipoUsuario === 'paciente') || (step === 9 && tipoUsuario === 'especialista')) && (
-           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
+           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8">
 
             <View className="flex-row justify-center justify-between -mt-2 -mr-2 mb-7">
                 {/* Back Button */}
                 <TouchableOpacity 
                   onPress={handlePrevious} 
-                  className="py-1 bg-white border border-gray-400 rounded-full w-20 ">
+                  className="py-1 bg-white border border-gray-400 rounded-full w-20">
                   <Text 
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="text-center text-gray-400">
                     Voltar
                   </Text>
                 </TouchableOpacity>
-
-                {/* Save button */}
-                <TouchableOpacity 
-                  onPress={handleSignup} 
-                  className="py-2 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="text-center text-white">
-                    Cadastrar
-                  </Text>
-                </TouchableOpacity>
               </View>
 
             <View className="mb-6">
-              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}}
-                className= "mb-3">{tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}</Text>
+              <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className= "mb-3">
+                {tipoUsuario === 'paciente' ? 'Eu gostaria que o terapeuta...' : 'Ao trabalhar com pacientes, eu prefiro...'}
+                <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}} className="text-red-600"> *</Text>
+              </Text>
             </View>
 
             {/* Questão D-14 */}
@@ -1812,6 +1882,18 @@ const handleSignup = async () => {
                 onValueChange={handleMudancaResposta(pontTesteD, setPontTesteD, 4)}
               />
             </View>
+
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleSignup}  
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Cadastrar
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
           </View>
         )}
