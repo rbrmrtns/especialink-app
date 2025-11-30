@@ -370,7 +370,7 @@ export default function Edicao({ route }) {
               } mx-1`}
             />
           )}
-        </View>
+        </View> 
       );
     }
     return indicators;
@@ -649,19 +649,6 @@ const handleUpdate = async () => {
        {step === 1 && tipoEdicao === "dados_pessoais" && (
           <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
 
-            {/* Next Button */}
-              <View className="flex justify-center items-end -mt-2 -mr-2">
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
               {/* Nome */}
                 <View className="mb-6">
                 <Text style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(16)}}
@@ -701,6 +688,18 @@ const handleUpdate = async () => {
                 />
                 </View>
               )}
+
+              <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
           </View>
         )}
 
@@ -716,16 +715,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  onPress={handleUpdate} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -813,6 +802,18 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(14)}}
                   />
             </View>
+
+            <View className="flex justify-center items-end -mr-2">
+              <TouchableOpacity 
+                onPress={handleUpdate}  
+                className="py-2 px-3 bg-orange rounded-full">
+                <Text 
+                  style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                  className="font-bold text-center text-white">
+                  Atualizar
+                </Text>
+              </TouchableOpacity>
+            </View>
   
           </View>
       )}
@@ -820,18 +821,6 @@ const handleUpdate = async () => {
       {/* Step 3 */}
       {step === 1 && tipoEdicao === "dados_profissionais" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex justify-center items-end -mt-2 -mr-2">
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
               {/* Especialidade */}
             <View className="mb-6">
@@ -887,6 +876,18 @@ const handleUpdate = async () => {
                 />
               </View>
 
+              <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
         )}
 
@@ -902,17 +903,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -980,7 +970,19 @@ const handleUpdate = async () => {
                 />
             </View>
 
-            </View>
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+          </View>
         )}
 
         {/* Step 5 */}
@@ -996,17 +998,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleUpdate} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="text-center text-white">
-                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1062,24 +1053,24 @@ const handleUpdate = async () => {
 
               </View>
 
+            <View className="flex justify-center items-end -mr-2">
+              <TouchableOpacity 
+                onPress={handleUpdate}  
+                className="py-2 px-3 bg-orange rounded-full">
+                <Text 
+                  style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                  className="font-bold text-center text-white">
+                  Atualizar
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             </View>
         )}
 
         {/* Step 5 */}
       {step === 1 && tipoEdicao === "condicoes" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex justify-center items-end -mt-2 -mr-2">
-                <TouchableOpacity 
-                  onPress={handleUpdate} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="text-center text-white">
-                    Atualizar
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
              {/* Seletores */}
             <View>
@@ -1107,25 +1098,24 @@ const handleUpdate = async () => {
 
               </View>
 
+              <View className="flex justify-center items-end -mr-2">
+              <TouchableOpacity 
+                onPress={handleUpdate}  
+                className="py-2 px-3 bg-orange rounded-full">
+                <Text 
+                  style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                  className="font-bold text-center text-white">
+                  Atualizar
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             </View>
         )}
 
         {/* Step 6 */}
       {step === 1 && tipoEdicao === "refazer_teste" && (
            <View className="flex-1 p-8 bg-white rounded-t-3xl shadow-xl -mt-8 pb-24">
-
-            <View className="flex justify-center items-end -mt-2 -mr-2">
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
             <View className="mb-6">
               <Text style={{ fontFamily: 'Montserrat_800ExtraBold', fontSize: getFontSize(16)}}
@@ -1294,6 +1284,18 @@ const handleUpdate = async () => {
               />
             </View>
 
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
           </View>
         )}
 
@@ -1310,17 +1312,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1492,6 +1483,18 @@ const handleUpdate = async () => {
               />
             </View>
 
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
           </View>
         )}
 
@@ -1508,17 +1511,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="font-bold text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Next button */}
-                <TouchableOpacity 
-                  onPress={handleNext} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="font-bold text-center text-white">
-                    Prosseguir
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1624,6 +1616,18 @@ const handleUpdate = async () => {
               />
             </View>
 
+            <View className="flex justify-center items-end -mr-2">
+                <TouchableOpacity 
+                  onPress={handleNext} 
+                  className="py-2 px-3 bg-orange rounded-full">
+                  <Text 
+                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                    className="font-bold text-center text-white">
+                    Prosseguir
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
           </View>
         )}
         
@@ -1640,17 +1644,6 @@ const handleUpdate = async () => {
                     style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
                     className="text-center text-gray-400">
                     Voltar
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Save button */}
-                <TouchableOpacity 
-                  onPress={handleUpdate} 
-                  className="py-1 bg-orange rounded-full w-20">
-                  <Text 
-                    style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
-                    className="text-center text-white">
-                    Atualizar
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1820,6 +1813,18 @@ const handleUpdate = async () => {
                 value={pontTesteD[4]}
                 onValueChange={handleMudancaResposta(pontTesteD, setPontTesteD, 4)}
               />
+            </View>
+
+            <View className="flex justify-center items-end -mr-2">
+              <TouchableOpacity 
+                onPress={handleUpdate}  
+                className="py-2 px-3 bg-orange rounded-full">
+                <Text 
+                  style={{ fontFamily: 'Montserrat_600SemiBold', fontSize: getFontSize(14)}} 
+                  className="font-bold text-center text-white">
+                  Atualizar
+                </Text>
+              </TouchableOpacity>
             </View>
 
           </View>
