@@ -1,12 +1,11 @@
-import { ActivityIndicator, View, Text, SafeAreaView, TouchableOpacity, Image, ImageBackground, ScrollView, RefreshControl, StatusBar } from 'react-native';
+import { ActivityIndicator, View, Text, Image, ScrollView, StatusBar } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
 import UsuarioCard from '../components/UsuarioCard';
 import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto';
 import Mapbox from '@rnmapbox/maps';
 import { useNavigation } from '@react-navigation/native';
-// import { useFocusEffect } from '@react-navigation/native';
-import { doc, collection, getDoc, query, where, getDocs, setDoc } from 'firebase/firestore';
-import { db, auth } from '../config/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
 import { AuthContext } from '../context/AuthContext';
 import { buscarEspecialistasPorEstado } from '../utils/buscarEspecialistasPorEstado';
 import { obterCoordenadasMapbox } from '../utils/geocoding';

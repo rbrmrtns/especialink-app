@@ -1,4 +1,3 @@
-// import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ImageBackground, PixelRatio, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { CustomCheckbox } from '../components/CustomCheckbox';

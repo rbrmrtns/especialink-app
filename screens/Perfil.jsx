@@ -7,7 +7,6 @@ import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto'
 import { signOut } from 'firebase/auth'
 import { AuthContext } from '../context/AuthContext';
 import { auth } from '../config/firebaseConfig';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Perfil() {
   const navigation = useNavigation()

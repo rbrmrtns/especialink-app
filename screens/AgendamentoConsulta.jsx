@@ -1,6 +1,5 @@
-// import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState, useContext } from 'react';
-import { ActivityIndicator, ImageBackground, PixelRatio, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { ActivityIndicator, ImageBackground, PixelRatio, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { DateTimePicker } from '../components/DateTimePicker';
 import { GeradorImagemPerfil } from '../components/GeradorImagemPerfil';

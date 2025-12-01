@@ -1,6 +1,5 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StatusBar, PixelRatio, ImageBackground, Image } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StatusBar, PixelRatio, ImageBackground } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react';
-import Animated, { FlipInEasyX } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { Dropdown } from '../components/Dropdown';
@@ -13,8 +12,6 @@ import { AuthContext } from '../context/AuthContext';
 import { buscarEspecialistasPorEstado } from '../utils/buscarEspecialistasPorEstado';
 import { obterCoordenadasMapbox} from '../utils/geocoding';
 import { getDistanceFromLatLonInKm } from '../utils/getDistanceFromLatLonInKm';
-// import { signOut } from 'firebase/auth'
-// import { auth } from '../config/firebaseConfig'
 
 export default function Busca() {
   const { loading, userProfile } = useContext(AuthContext);

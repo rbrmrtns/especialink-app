@@ -1,5 +1,5 @@
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native'
-import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
+import { View, Text, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native'
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import React, { useState } from 'react'
 import { EnvelopeIcon, KeyIcon } from 'react-native-heroicons/outline'
 import { LinearGradient } from 'expo-linear-gradient';
