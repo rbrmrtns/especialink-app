@@ -189,7 +189,6 @@ const AppNavigation = () => {
 
                 ) : (
                     <>
-                        {/* <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} /> */}
                         <Stack.Screen name="Login" component={Login} options={{ headerShown: false, animation: 'fade' }} />
                         <Stack.Screen name="Cadastro" component={Cadastro} options={{ headerShown: false, animation: 'fade' }} />
                     </>
