@@ -10,7 +10,7 @@ import { UsuarioCardCompleto } from '../components/UsuarioCardCompleto'
 import { db } from '../config/firebaseConfig';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
 import { AuthContext } from '../context/AuthContext';
-import { buscarEspecialistasPorEstado } from '../components/buscarEspecialistasPorEstado';
+import { buscarEspecialistasPorEstado } from '../utils/buscarEspecialistasPorEstado';
 import { obterCoordenadasMapbox} from '../utils/geocoding';
 import { getDistanceFromLatLonInKm } from '../utils/getDistanceFromLatLonInKm';
 // import { signOut } from 'firebase/auth'

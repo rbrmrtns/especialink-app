@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { doc, collection, getDoc, query, where, getDocs, setDoc } from 'firebase/firestore';
 import { db, auth } from '../config/firebaseConfig';
 import { AuthContext } from '../context/AuthContext';
-import { buscarEspecialistasPorEstado } from '../components/buscarEspecialistasPorEstado';
+import { buscarEspecialistasPorEstado } from '../utils/buscarEspecialistasPorEstado';
 import { obterCoordenadasMapbox } from '../utils/geocoding';
 import { medicaoCompatibilidade } from '../utils/medicaoCompatibilidade';
 

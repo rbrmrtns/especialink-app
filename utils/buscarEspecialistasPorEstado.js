@@ -1,6 +1,6 @@
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
-import { obterCoordenadasMapbox } from '../utils/geocoding';
+import { obterCoordenadasMapbox } from './geocoding';
 
 export const buscarEspecialistasPorEstado = async (ufPaciente) => {
   if (!ufPaciente) return { dadosEspecialistas: [], coordsEspecialistas: [] };
