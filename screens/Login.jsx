@@ -15,7 +15,7 @@ export default function Login() {
   const [senha, setSenha] = useState();
   const [error, setError] = useState('');
 
-  const handleSubmit = async () => {
+  const handleSignIn = async () => {
     if(email && senha) { 
       try {
         await signInWithEmailAndPassword(auth, email, senha);
@@ -97,7 +97,7 @@ export default function Login() {
 
          <Animated.View entering={FadeInDown.delay(500).duration(3000).springify()}>
              <TouchableOpacity 
-                onPress={handleSubmit}
+                onPress={handleSignIn}
                 className="rounded-full mb-5 w-60 mx-auto overflow-hidden"
               >
                 <LinearGradient
