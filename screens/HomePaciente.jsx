@@ -99,7 +99,7 @@ return (
             onTouchEnd={() => setScrollEnabled(true)}
           >
             <Mapbox.Camera
-              zoomLevel={14}
+              zoomLevel={13}
               centerCoordinate={[parseFloat(coordenadasUser.longitude), parseFloat(coordenadasUser.latitude)]}
               animationMode={'flyTo'}
               animationDuration={0}
