@@ -14,7 +14,7 @@ Uma vez instalada a *Development Build* no dispositivo (físico ou virtual), dev
 
 1. **Clonagem do Repositório:** Utilizando um terminal de comando, realiza-se a cópia dos arquivos do projeto hospedados no GitHub através do comando:
     ```bash
-    git clone [https://github.com/rbrmrtns/especialink-app.git](https://github.com/rbrmrtns/especialink-app.git)
+    git clone https://github.com/rbrmrtns/especialink-app.git
     ```
 2. **Instalação de Dependências:** Navegue até o diretório raiz do projeto recém-clonado (ex: `<caminho-local>/especialink-app`) e execute o gerenciador de pacotes para instalar as bibliotecas necessárias:
     ```bash
@@ -27,4 +27,5 @@ Uma vez instalada a *Development Build* no dispositivo (físico ou virtual), dev
 4. **Sincronização com o Dispositivo:** Com o servidor em execução, a conexão final depende do tipo de dispositivo utilizado: 
     1. **Dispositivo Físico:** Utilizar a câmera do celular ou um leitor de *QR Code* para escanear o código gerado no terminal. Isso abrirá automaticamente a *Development Build* instalada anteriormente, carregando o pacote JavaScript do projeto. 
     2. **Emulador Android:** Com o emulador aberto e a *Development Build* instalada nele, pressionar a tecla `a` no terminal do computador para forçar a abertura da aplicação no ambiente virtual.
+
 
