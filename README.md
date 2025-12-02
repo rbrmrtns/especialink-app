@@ -1,3 +1,7 @@
+# Especialink
+
+## Instalação e Execução do Projeto
+
 Tanto para a execução em dispositivos físicos (recomendado) quanto para emuladores virtuais (Android Virtual Device - AVD), é mandatório realizar a instalação prévia deste arquivo. O procedimento consiste em: 
 
 1. Acessar o repositório de builds do projeto através do endereço eletrônico: https://expo.dev/accounts/robrmartins/projects/especialink-front/builds/d319347b-272d-4e99-a289-7d2e3d280240.
@@ -23,3 +27,4 @@ Uma vez instalada a *Development Build* no dispositivo (físico ou virtual), dev
 4. **Sincronização com o Dispositivo:** Com o servidor em execução, a conexão final depende do tipo de dispositivo utilizado: 
     1. **Dispositivo Físico:** Utilizar a câmera do celular ou um leitor de *QR Code* para escanear o código gerado no terminal. Isso abrirá automaticamente a *Development Build* instalada anteriormente, carregando o pacote JavaScript do projeto. 
     2. **Emulador Android:** Com o emulador aberto e a *Development Build* instalada nele, pressionar a tecla `a` no terminal do computador para forçar a abertura da aplicação no ambiente virtual.
+
