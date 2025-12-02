@@ -12,10 +12,10 @@ const UsuarioCard = ({ dadosPerfil, onVerMaisPress }) => {
   const navigation = useNavigation();
 
   const nomesAreas = {
-    psicologa: 'Psicóloga',
+    psicologa: 'Psicóloga(o)',
     psiquiatra: 'Psiquiatra',
-    psicopedagoga: 'Psicopedagoga',
-    fonoaudiologa: 'Fonoaudióloga',
+    psicopedagoga: 'Psicopedagoga(o)',
+    fonoaudiologa: 'Fonoaudióloga(o)',
     terapeuta_ocupacional: 'Terapeuta Ocupacional'
   };
 

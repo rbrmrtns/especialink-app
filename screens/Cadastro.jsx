@@ -1402,7 +1402,7 @@ const handleSignup = async () => {
               {/* Texto da Direita */}
               <Text style={{ fontFamily: 'Montserrat_400Regular', fontSize: getFontSize(11)}} 
                 className="flex-1 text-right px-2">
-                {tipoUsuario === 'paciente' ? 'Não me encorajasse a me aprofundar em emoções complicadas' : 'Não encorajar os pacientes a see aprofundarem em emoções complicadas'}
+                {tipoUsuario === 'paciente' ? 'Não me encorajasse a me aprofundar em emoções complicadas' : 'Não encorajar os pacientes a se aprofundarem em emoções complicadas'}
               </Text>
             </View> 
 
