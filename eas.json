@@ -12,6 +12,9 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EAS_BUILD_NODE_VERSION": "20.12.1"
       }
     },
     "production": {
