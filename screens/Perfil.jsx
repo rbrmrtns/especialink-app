@@ -184,7 +184,7 @@ export default function Perfil() {
 
             <Text style={{ fontFamily: 'Montserrat_500Medium' }}
             className="mt-1">
-              Refazer Teste de Compatibilidade
+              Refazer Teste de Preferências
             </Text>
           </View>
 
