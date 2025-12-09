@@ -1,5 +1,15 @@
 # Especialink
 
+Aplicação móvel desenvolvida com React Native (Expo) e Firebase como Trabalho de Conclusão de Curso em Análise e Desenvolvimento de Sistemas. O projeto visa facilitar o acesso à saúde mental através de um algoritmo de recomendação que conecta pacientes (e tutelados) aos especialistas ideais. O sistema de _matching_ pondera a compatibilidade de preferências terapêuticas, a proximidade geográfica e a correspondência entre as condições clínicas do paciente e as áreas de especialização do profissional, oferecendo também ferramentas de gestão de consultas para os especialistas.
+
+## 🛠 Tecnologias:
+
+Mobile: React Native, Expo (Expo Go, EAS), Tailwind CSS (Nativewind)
+
+Backend/BaaS: Firebase (Firestore, Auth)
+
+Serviços: Mapbox (Geocodificação & Mapeamento)
+
 ## Instalação e Execução do Projeto
 
 Tanto para a execução em dispositivos físicos (recomendado) quanto para emuladores virtuais (Android Virtual Device - AVD), é mandatório realizar a instalação prévia deste arquivo. O procedimento consiste em: 
@@ -27,5 +37,6 @@ Uma vez instalada a *Development Build* no dispositivo (físico ou virtual), dev
 4. **Sincronização com o Dispositivo:** Com o servidor em execução, a conexão final depende do tipo de dispositivo utilizado: 
     1. **Dispositivo Físico:** Utilizar a câmera do celular ou um leitor de *QR Code* para escanear o código gerado no terminal. Isso abrirá automaticamente a *Development Build* instalada anteriormente, carregando o pacote JavaScript do projeto. 
     2. **Emulador Android:** Com o emulador aberto e a *Development Build* instalada nele, pressionar a tecla `a` no terminal do computador para forçar a abertura da aplicação no ambiente virtual.
+
 
 
