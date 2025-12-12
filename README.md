@@ -4,7 +4,7 @@ Aplicação móvel desenvolvida com React Native (Expo) e Firebase como Trabalho
 
 ## 🛠 Tecnologias:
 
-Mobile: React Native, Expo (Expo Go, EAS), Tailwind CSS (Nativewind)
+Mobile: React Native, Expo (EAS), Tailwind CSS (Nativewind)
 
 Backend/BaaS: Firebase (Firestore, Auth)
 
@@ -37,6 +37,7 @@ Uma vez instalada a *Development Build* no dispositivo (físico ou virtual), dev
 4. **Sincronização com o Dispositivo:** Com o servidor em execução, a conexão final depende do tipo de dispositivo utilizado: 
     1. **Dispositivo Físico:** Utilizar a câmera do celular ou um leitor de *QR Code* para escanear o código gerado no terminal. Isso abrirá automaticamente a *Development Build* instalada anteriormente, carregando o pacote JavaScript do projeto. 
     2. **Emulador Android:** Com o emulador aberto e a *Development Build* instalada nele, pressionar a tecla `a` no terminal do computador para forçar a abertura da aplicação no ambiente virtual.
+
 
 
 
